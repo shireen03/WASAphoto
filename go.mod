@@ -1,4 +1,4 @@
-module git.shireen03/WASAphoto
+module https://github.com/shireen03/WASAphoto.git
 
 go 1.17
 

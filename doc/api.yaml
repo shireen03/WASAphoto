@@ -8,10 +8,10 @@ info:
     
     This API was created in 2023/2024.
     
-  version: "5"
+  version: "7"
   
 paths:
-  /userLogIn:
+  /user/logIn:
     post:
       tags: ["login"]
       summary: Log in the user
@@ -45,7 +45,7 @@ paths:
                   userID:
                     type: string
                     example: "abcdef012345"
-  /setMyUserName:
+  /user/username:
     put:
       tags: ["user"]
       summary: Sets or updates the user's username 
@@ -79,7 +79,16 @@ paths:
                     example: "Username updated successfully"
         '400':
           description: Username already exists
-  /uploadPhoto:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "UserID not found"
+          
+  /photo/upload:
     post:
       tags: ["photo"]
       summary: Upload a photo
@@ -90,9 +99,13 @@ paths:
         description: new photo upload request. If successful, a new photoID is created. Each photo has a unique identifier which is the photoID.
         content:
           image/png:
-              schema:
-                type: string
-                format: binary
+              schema: 
+                type: object
+                properties:
+                  photoID:
+                    type: string
+                    format: binary
+          
         required: true
       responses:
         '200':
@@ -104,9 +117,10 @@ paths:
                 properties:
                   photoID:
                     type: string
+                    example: "pic1"
         
           
-  /userFollow/{userId}:
+  /user/follow/{userId}:
     post:
       tags: ["user"]
       summary: Follow a user
@@ -124,8 +138,31 @@ paths:
       responses:
         '200':
           description: User followed 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User followed successfully"
+                  userID:
+                    type: string
+                    example: "shireen19"
+        
         '400':
           description: UserID not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "userID not found"
+                  
+          
+          
     delete:
         tags: ["user"]
         summary: Unfollow a user
@@ -141,11 +178,30 @@ paths:
               type: string
         responses:
           '200':
-            description: User unfollowed successfully
+            description: User unfollowed 
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    userID:
+                      type: string
+                      example: "shireen19"
+                    message:
+                      type: string
+                      example: "User unfollowed successfully"
           '400':
             description: UserID not found
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      example: "Username not found"
             
-  /banUser/{userId}:
+  /user/ban/{userId}:
     post:
       tags: ["user"]
       summary: Ban a user
@@ -163,8 +219,27 @@ paths:
       responses:
         '200':
           description: User banned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Username banned successfully"
+                  userID:
+                    type: string
+                    example: "shireen19"
         '400':
           description: UserID not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "UserID not found"
     delete:
         tags: ["user"]
         summary: Unban a user
@@ -181,11 +256,30 @@ paths:
         responses:
           '200':
             description: User unbanned successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: "User unbanned"
+                    userID:
+                      type: string
+                      example: "Shireen19"
+            
           '400':
             description: UserID not found
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      example: "UserID not found"
             
-            
-  /getUserProfile/{userId}:
+  /user/profile/{userId}:
     get:
       tags: ["user"]
       summary: Get User Profile
@@ -202,11 +296,30 @@ paths:
       responses:
         '200':
           description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User profile found"
+                  userID: 
+                    type: string
+                    example: "shireen1919"
         
         '404':
           description: User profile not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "User profile not found"
 
-  /getMyStream:
+  /user/stream:
     get:
       tags: ["user"]
       summary: Get User's Stream
@@ -253,8 +366,16 @@ paths:
                   
         '400':
           description: Stream information not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "profile stream unavailable"
           
-  /likePhoto/{photoID}:
+  /photo/like/{photoID}:
     post:
       tags: ["photo"]
       summary: Like a Photo
@@ -265,13 +386,25 @@ paths:
         - in: path
           name: photoID
           required: true
-          description: Photo to like
+          description: adding a like to a collection of likes
           schema:
             type: string
             example: "pic1"
       responses:
         '200':
           description: Photo is liked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "photo is liked"
+                  photoID:
+                    type: string
+                    example: "pic1"
+
     delete:
       tags: ["photo"]
       summary: Unlike a photo
@@ -287,12 +420,22 @@ paths:
               type: string
               example: "pic1"
       responses:
-        '201':
+        '200':
           description: Photo is unliked 
-          
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "photo is unliked"
+                  photoID:
+                    type: string
+                    example: "pic123"
   
           
-  /commentPhoto/{photoID}:
+  /photo/comment/{photoID}:
     post:
       tags: ["photo"]
       summary: comment on a photo
@@ -314,10 +457,9 @@ paths:
             schema:
               type: object
               properties:
-                comment:
+                commentID:
                   type: string
                   example: "nice pic!"
-        required: true
       responses:
         '200':
           description: User has commented on the photo
@@ -329,6 +471,7 @@ paths:
                   commentID:
                     type: string
                     example: "comment19"
+                  
         
           
     delete:
@@ -348,9 +491,17 @@ paths:
            
       responses:
         '200':
-          description: uncommented on post 
+          description: comment deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  commentID:
+                    type: string
+                    example: "comment123"
           
-  /deletePhoto/{photoID}:
+  /photo/remove/{photoID}:
     delete:
       tags: ["photo"]
       summary: Delete a Photo
@@ -367,10 +518,29 @@ paths:
             example: "pic1"
       responses:
         '200':
-          description: Photo deleted successfully
+          description: Photo is deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "photo removed successfully"
+                  photoID:
+                    type: string
+                    example: "pic1"
         '404':
           description: Photo not found
-
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "photoID not found"
+                
   
 
             

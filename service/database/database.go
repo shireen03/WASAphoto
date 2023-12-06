@@ -97,17 +97,18 @@ type Stream struct {
 
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
-	LogIn(User) (User, error)
+	CreateUser(User) (User, error)
 	SetUsername(string, User) (User, error)
 	//GetUserId(uint64) (User, error)
 	GetStream(User) ([]Stream, error)
+	CheckUserExist(username User) (bool, error)
 
 	SetBan(Ban) error
 	SetUnBan(Ban) error
-	BanCheck(ppl1 uint64, ppl2 uint64) (bool, error)
+	BanCheck(ppl1 Ban) (bool, error)
 
 	SetPic(Photo) error
-	RemovePic(uint64) error
+	RemovePic(Photo) error
 
 	SetLike(Like) error
 	RemoveLike(Like) error
@@ -155,7 +156,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 			);`
 
 		photoDB := `CREATE TABLE photos (
-			photoID INTEGER NOT NULL PRIMARY KEY,
+			photoID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 			userID INTEGER NOT NULL,
 			date	TEXT NOT NULL,
 			photo	BLOB
@@ -169,7 +170,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 				);`
 
 		likeDB := `CREATE TABLE like (
-			likeID INTEGER NOT NULL PRIMARY KEY,
+			likeID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 			userID INTEGER NOT NULL,
 			photoID INTEGER NOT NULL,
 			FOREIGN KEY (userID) REFERENCES user(UserID),

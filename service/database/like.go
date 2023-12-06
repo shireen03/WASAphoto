@@ -15,7 +15,6 @@ func (db *appdbimpl) RemoveLike(like Like) error {
 	}
 	return nil
 }
-
 func (db *appdbimpl) GetLikeCount(pic Photo) (int, error) {
 	var likeNumb int
 	err := db.c.QueryRow("SELECT COUNT(*) FROM like WHERE photoID=?", pic.PhotoID).Scan(&likeNumb)

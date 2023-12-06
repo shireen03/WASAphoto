@@ -11,7 +11,7 @@ info:
   version: "7"
   
 paths:
-  /user/logIn:
+  /user/{username}/logIn:
     post:
       tags: ["user"]
       summary: Log in the user
@@ -23,13 +23,19 @@ paths:
         - LegacyAuth: []
 
       operationId: doLogin
+      parameters:
+      - in: path
+        name: username
+        required: true
+        description: username of the user
+        schema:
+          type: string
       requestBody:
         description: User details
         content:
           application/json:
             schema:
               description: |- 
-                
               type: object
               properties:
                 name:
@@ -52,7 +58,7 @@ paths:
                     example: "abcdef012345"
    
 
-  /user/username:
+  /user/{userID}/username{username}:
     put:
       tags: ["user"]
       summary: Sets or updates the user's username 
@@ -62,6 +68,21 @@ paths:
       security:
         - LegacyAuth: []
       operationId: setMyUsername
+      parameters:
+        - in: path
+          name: userID
+          required: true
+          description: |-
+            userID of the person who changes their username
+          schema:
+            type: string
+        - in: path
+          name: username
+          required: true
+          description: |-
+            userID of the person the account owner wants to ban
+          schema:
+            type: string
       requestBody:
         description: New username
         content:
@@ -97,7 +118,7 @@ paths:
                     type: string
                     example: "UserID not found"
           
-  /photo/upload:
+  /photo/upload/{userID}:
     post:
       tags: ["photo"]
       summary: Upload a photo
@@ -106,8 +127,18 @@ paths:
       security:
         - LegacyAuth: []     
       operationId: uploadPhoto
+      parameters:
+        - in: path
+          name: userID
+          required: true
+          description: |-
+            post photo on user's account by identifying them with their userID.
+          schema:
+            type: string
       requestBody:
-        description: new photo upload request. If successful, a new photoID is created. Each photo has a unique identifier which is the photoID.
+        description: |-
+          new photo file upload request. If successful, a new photoID is
+          created. Each photo has a unique identifier which is the photoID.
         content:
           image/png:
               schema: 
@@ -133,23 +164,31 @@ paths:
                     example: "pic1"
         
           
-  /user/{userId}/follow:
+  /user/{userID}/follow/{followUserID}:
     post:
-      tags: ["user"]
-      summary: Follow a user
+      tags: ["follow"]
+      summary: Follow or unfollow a user
       description: |-
-        This endpoint allows a user to follow another user by their userID.
+        This endpoint allows a user to follow or unfollow another user by their userID.
         If the user is already following the specified user, they will unfollow them, and if not, they will follow them.
       security:
         - LegacyAuth: []
-      operationId: followUser
+      operationId: toggleFollowUser
       parameters:
         - in: path
-          name: userId
+          name: userID
           required: true
           description: follow user
           schema:
             type: string
+        - in: path
+          name: followUserID
+          required: true
+          description: userID of the person the account owner wants to follow
+          schema:
+            type: string
+        
+      
       responses:
         '200':
           description: User followed 
@@ -177,62 +216,28 @@ paths:
                     example: "userID not found"
                   
           
-          
-    delete:
-        tags: ["user"]
-        summary: Unfollow a user
-        description: |-
-          This endpoint allows a user to unfollow another user by their userID. 
-        security:
-          - LegacyAuth: []
-        operationId: unfollowUser
-        parameters:
-          - in: path
-            name: userId
-            required: true
-            description: User identifier to unfollow
-            schema:
-              type: string
-        responses:
-          '200':
-            description: User unfollowed 
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    userID:
-                      type: string
-                      example: "shireen19"
-                    message:
-                      type: string
-                      example: "User unfollowed successfully"
-          '400':
-            description: UserID not found
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    error:
-                      type: string
-                      example: "Username not found"
             
-  /user/{userId}/ban:
+  /user/{userID}/ban/{banUserID}:
     post:
-      tags: ["user"]
-      summary: Ban a user
+      tags: ["ban"]
+      summary: Ban or unban a user
       description: |-
         This endpoint allows a user to ban another user by their userID.
         If the user is already banned, they will unban them, otherwise, they will ban them.
       security:
         - LegacyAuth: []
-      operationId: banUser
+      operationId: toggleBanUser
       parameters:
         - in: path
-          name: userId
+          name: userID
           required: true
           description: ban user
+          schema:
+            type: string
+        - in: path
+          name: banUserID
+          required: true
+          description: userID of the person the account owner wants to ban
           schema:
             type: string
       responses:
@@ -259,47 +264,7 @@ paths:
                   error:
                     type: string
                     example: "UserID not found"
-    delete:
-        tags: ["user"]
-        summary: Unban a user
-        description: |-
-          This endpoint allows a user to unfollow another user by their userID. 
-        security:
-          - LegacyAuth: []
-        operationId: unbanUser
-        parameters:
-          - in: path
-            name: userId
-            required: true
-            description: User to unban
-            schema:
-              type: string
-        responses:
-          '200':
-            description: User unbanned successfully
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    message:
-                      type: string
-                      example: "User unbanned"
-                    userID:
-                      type: string
-                      example: "Shireen19"
-            
-          '400':
-            description: UserID not found
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    error:
-                      type: string
-                      example: "UserID not found"
-            
+   
   /user/{userId}/profile:
     get:
       tags: ["user"]
@@ -342,7 +307,7 @@ paths:
                     type: string
                     example: "User profile not found"
 
-  /user/stream:
+  /user/{userID}/stream:
     get:
       tags: ["user"]
       summary: Get User's Stream
@@ -351,6 +316,13 @@ paths:
       security:
         - LegacyAuth: []
       operationId: getMyStream
+      parameters:
+        - in: path
+          name: userID
+          required: true
+          description: userID of the person's stream 
+          schema:
+            type: string
       responses:
         '200':
           description: User's stream acquired successfully
@@ -400,15 +372,15 @@ paths:
                     type: string
                     example: "profile stream unavailable"
           
-  /photo/{photoID}/like:
+  /photo/{photoID}/like/{userID}:
     post:
-      tags: ["photo"]
-      summary: Like a Photo
+      tags: ["like"]
+      summary: Like or unlike a Photo
       description: |-
         This endpoint allows a user to like a photo. If the user has already liked the photo, it will unlike the photo. The photoID is a string that uniquely identifies each photo.
       security:
         - LegacyAuth: []
-      operationId: likePhoto
+      operationId: toggleLikePhoto
       parameters:
         - in: path
           name: photoID
@@ -417,6 +389,13 @@ paths:
           schema:
             type: string
             example: "pic1"
+        - in: path
+          name: userID
+          required: true
+          description: |-
+            userID of the person who likes a photo
+          schema:
+            type: string
       responses:
         '200':
           description: Photo is liked
@@ -432,41 +411,11 @@ paths:
                     type: string
                     example: "pic1"
 
-    delete:
-      tags: ["photo"]
-      summary: Unlike a photo
-      description: |-
-          This allows a user to unlike a photo.
-      security:
-        - LegacyAuth: []
-      operationId: unlikePhoto
-      parameters:
-          - in: path
-            name: photoID
-            required: true
-            description: photoID to unlike
-            schema:
-              type: string
-              example: "pic1"
-      responses:
-        '200':
-          description: Photo is unliked 
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "photo is unliked"
-                  photoID:
-                    type: string
-                    example: "pic123"
-  
+    
           
-  /photo/{photoID}/comment:
+  /photo/{photoID}/comment/{userID}:
     post:
-      tags: ["photo"]
+      tags: ["comment"]
       summary: comment on a photo
       description: |-
         This endpoint allows a user to write a comment on a photo. 
@@ -481,6 +430,12 @@ paths:
           schema:
             type: string
             example: "pic1"
+        - in: path
+          name: userID
+          required: true
+          description: userID of the person who comments on a photo
+          schema:
+            type: string
       requestBody:
         description: Here we comment on the photo according to the photoID given as parameter. 
         content:
@@ -506,7 +461,7 @@ paths:
         
           
     delete:
-      tags: ["photo"]
+      tags: ["comment"]
       summary: Uncomment on a photo
       description: |-
           This allows a user to uncomment on a photo using the commentID.
@@ -514,13 +469,19 @@ paths:
         - LegacyAuth: []
       operationId: uncommentPhoto
       parameters:
-          - in: path
-            name: photoID
-            required: true
-            description: photoID is required to retrieve the post in which the user would like to uncomment.
-            schema:
+        - in: path
+          name: photoID
+          required: true
+          description: photoID is required to retrieve the post in which the             user would like to uncomment.
+          schema:
               type: string
               example: "comment1"
+        - in: path
+          name: userID
+          required: true
+          description: userID of the person who uncomments on photo
+          schema:
+            type: string
            
       responses:
         '200':
@@ -547,7 +508,9 @@ paths:
         - in: path
           name: photoID
           required: true
-          description: PhotoID is a unique identifier. This is needed to retrieve the specific photo to delete.
+          description: |-
+            PhotoID is a unique identifier. This is needed to retrieve the
+            specific photo to delete.
           schema:
             type: string
             example: "pic1"

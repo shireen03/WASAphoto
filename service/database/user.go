@@ -1,6 +1,6 @@
 package database
 
-func (db *appdbimpl) LogIn(usr User) (User, error) {
+func (db *appdbimpl) CreateUser(usr User) (User, error) {
 	_, err := db.c.Exec("INSERT INTO user (username) VALUES (?)", usr.Username)
 	if err != nil {
 		return User{}, err
@@ -8,6 +8,18 @@ func (db *appdbimpl) LogIn(usr User) (User, error) {
 	return usr, nil
 }
 
+// func(db*appdbimpl) LogIn(username User)(User,error){
+
+// }
+
+func (db *appdbimpl) CheckUserExist(username User) (bool, error) {
+	var userExists bool
+	err := db.c.QueryRow("SELECT EXISTS(SELECT 1 from user WHERE username=?)", username.Username).Scan(&userExists)
+	if err != nil {
+		return false, err
+	}
+	return userExists, nil
+}
 func (db *appdbimpl) SetUsername(username string, user User) (User, error) {
 	_, err := db.c.Exec("UPDATE user SET username=? WHERE username=? AND userID=?", username, user.Username, user.UserID)
 	if err != nil {

@@ -17,12 +17,6 @@ import (
 func (rt *_router) postPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	var pic database.Photo
 
-	photoID, err := strconv.ParseUint(ps.ByName("photoID"), 10, 64)
-	if err != nil {
-		http.Error(w, "Invalid photo ID", http.StatusBadRequest)
-		return
-	}
-
 	userID, err := strconv.ParseUint(ps.ByName("userID"), 10, 64)
 	if err != nil {
 		http.Error(w, "Invalid user ID", http.StatusBadRequest)
@@ -36,9 +30,8 @@ func (rt *_router) postPhoto(w http.ResponseWriter, r *http.Request, ps httprout
 
 	}
 	pic.UserID = userID
-	pic.PhotoID = photoID
-	currentTime := time.Now()
-	pic.Date = currentTime.Format("2006-01-02 15:04:05")
+	pic.UploadTime = time.Now()
+	pic.Date = pic.UploadTime.Format("2006-01-02 15:04:05")
 
 	err = rt.db.SetPic(pic)
 	if err != nil {

@@ -1,8 +1,33 @@
 package database
 
-// GetName is an example that shows you how to query data
-func (db *appdbimpl) GetName() (string, error) {
-	var name string
-	err := db.c.QueryRow("SELECT name FROM example_table WHERE id=1").Scan(&name)
-	return name, err
+// set pic
+func (db *appdbimpl) SetPic(pic Photo) error {
+	_, err := db.c.Exec("INSERT INTO photos (photoID, userID, date, photo) VALUES (?, ?, ?, ?)", pic.PhotoID, pic.UserID, pic.Date, pic.Picture)
+	if err != nil {
+		return err // Return if error
+	}
+	return nil // void for no error
+}
+
+// remove pic
+func (db *appdbimpl) RemovePic(picID Photo) error {
+	// Delete from the photo table
+	_, err := db.c.Exec("DELETE FROM photos WHERE photoID=?", picID.PhotoID)
+	if err != nil {
+		return err // Return error
+	}
+
+	// Delete from the like table
+	_, err = db.c.Exec("DELETE FROM like WHERE photoID=?", picID.PhotoID)
+	if err != nil {
+		return err
+	}
+
+	// Delete from the comment table
+	_, err = db.c.Exec("DELETE FROM comment WHERE photoID=?", picID.PhotoID)
+	if err != nil {
+		return err
+	}
+
+	return nil // void if no errors
 }

@@ -8,7 +8,7 @@ func (db *appdbimpl) SetComment(c Comment) error {
 	return nil
 }
 
-func (db *appdbimpl) SetUnComment(c Comment) error {
+func (db *appdbimpl) RemoveComment(c Comment) error {
 	_, err := db.c.Exec("DELETE FROM comment WHERE commentID=?", c.CommentID)
 	if err != nil {
 		return err

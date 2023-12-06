@@ -110,11 +110,12 @@ type AppDatabase interface {
 	RemovePic(uint64) error
 
 	SetLike(Like) error
-	SetUnLike(Like) error
+	RemoveLike(Like) error
 	GetLikeCount(pic Photo) (int, error)
+	IsLiked(like Like) (bool, error)
 
 	SetComment(Comment) error
-	SetUnComment(Comment) error
+	RemoveComment(Comment) error
 	//GetCommentList(uint64)([]Comment,error)
 	GetCommentCount(Photo) (int, error)
 	RemoveBanComment(ban Ban) error
@@ -123,6 +124,7 @@ type AppDatabase interface {
 	RemoveFollow(Follow) error
 	GetFollowCount(Follow) (int, error)
 	GetFollowingCount(Follow) (int, error)
+	IsFollowing(follow Follow) (bool, error)
 
 	Ping() error
 }
@@ -143,7 +145,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='userTable';`).Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
 		userDB := `CREATE TABLE user (
-			UserID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, username TEXT  
+			UserID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			username TEXT  
 			);` //autoincrement cuz each userid is unique
 		banDB := `CREATE TABLE ban (
 			banID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -159,7 +162,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 			FOREIGN KEY (userID) REFERENCES user(UserID),
 			);`
 		followDB := `CREATE TABLE follow (
-				followID INTEGER NOT NULL PRIMARY KEY,
+				followID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 				userID INTEGER NOT NULL,
 				toFollowID INTEGER NOT NULL,
 				FOREIGN KEY (userID) REFERENCES user(UserID),

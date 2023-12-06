@@ -16,9 +16,9 @@ func (db *appdbimpl) SetUnBan(unban Ban) error {
 	return nil
 }
 
-func (db *appdbimpl) BanCheck(userID1 uint64, userID2 uint64) (bool, error) {
+func (db *appdbimpl) BanCheck(userID1 Ban) (bool, error) {
 	var isBan bool
-	err := db.c.QueryRow("SELECT EXISTS(SELECT 1 FROM bans WHERE bannerID=? AND bannedUserID=?)", userID1, userID2).Scan(&isBan)
+	err := db.c.QueryRow("SELECT EXISTS(SELECT 1 FROM bans WHERE bannerID=? AND bannedUserID=?)", userID1.UserID, userID1.BanUserID).Scan(&isBan)
 	if err != nil {
 		return false, err
 	}

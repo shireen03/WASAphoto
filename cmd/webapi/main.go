@@ -34,8 +34,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/ardanlabs/conf"
 	_ "github.com/mattn/go-sqlite3"
+
+	"github.com/ardanlabs/conf"
 	"github.com/shireen03/WASAphoto/service/api"
 	"github.com/shireen03/WASAphoto/service/database"
 	"github.com/shireen03/WASAphoto/service/globaltime"

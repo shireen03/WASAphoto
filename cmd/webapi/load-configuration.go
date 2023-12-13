@@ -26,7 +26,7 @@ type WebAPIConfiguration struct {
 	}
 	Debug bool
 	DB    struct {
-		Filename string `conf:"decaf.db?_foreign_keys=on"`
+		Filename string `conf:"decaf.db?"`
 	}
 }
 

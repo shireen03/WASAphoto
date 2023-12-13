@@ -11,7 +11,7 @@ info:
   version: "7"
   
 paths:
-  /user/{username}/logIn:
+  /session:
     post:
       tags: ["user"]
       summary: Log in the user
@@ -38,7 +38,7 @@ paths:
               description: |- 
               type: object
               properties:
-                name:
+                username:
                   type: string
                   example: Maria
                   pattern: 'ˆ.*?$'
@@ -58,7 +58,7 @@ paths:
                     example: "abcdef012345"
    
 
-  /user/{userID}/username{username}:
+  /user/{username}/setusername:
     put:
       tags: ["user"]
       summary: Sets or updates the user's username 
@@ -68,21 +68,6 @@ paths:
       security:
         - LegacyAuth: []
       operationId: setMyUsername
-      parameters:
-        - in: path
-          name: userID
-          required: true
-          description: |-
-            userID of the person who changes their username
-          schema:
-            type: string
-        - in: path
-          name: username
-          required: true
-          description: |-
-            userID of the person the account owner wants to ban
-          schema:
-            type: string
       requestBody:
         description: New username
         content:
@@ -173,10 +158,10 @@ paths:
         If the user is already following the specified user, they will unfollow them, and if not, they will follow them.
       security:
         - LegacyAuth: []
-      operationId: toggleFollowUser
+      operationId: followUser
       parameters:
         - in: path
-          name: userID
+          name: userId
           required: true
           description: follow user
           schema:
@@ -216,8 +201,48 @@ paths:
                     example: "userID not found"
                   
           
+          
+    delete:
+        tags: ["user"]
+        summary: Unfollow a user
+        description: |-
+          This endpoint allows a user to unfollow another user by their userID. 
+        security:
+          - LegacyAuth: []
+        operationId: unfollowUser
+        parameters:
+          - in: path
+            name: userId
+            required: true
+            description: User identifier to unfollow
+            schema:
+              type: string
+        responses:
+          '200':
+            description: User unfollowed 
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    userID:
+                      type: string
+                      example: "shireen19"
+                    message:
+                      type: string
+                      example: "User unfollowed successfully"
+          '400':
+            description: UserID not found
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      example: "Username not found"
             
-  /user/{userID}/ban/{banUserID}:
+  /user/{userId}/ban/{banUserID}:
     post:
       tags: ["ban"]
       summary: Ban or unban a user
@@ -226,18 +251,18 @@ paths:
         If the user is already banned, they will unban them, otherwise, they will ban them.
       security:
         - LegacyAuth: []
-      operationId: toggleBanUser
+      operationId: banUser
       parameters:
         - in: path
           name: userID
           required: true
-          description: ban user
+          description: current userID
           schema:
             type: string
         - in: path
           name: banUserID
           required: true
-          description: userID of the person the account owner wants to ban
+          description: ban user with the banUserID
           schema:
             type: string
       responses:
@@ -264,19 +289,65 @@ paths:
                   error:
                     type: string
                     example: "UserID not found"
-   
-  /user/{userId}/profile:
+    delete:
+        tags: ["user"]
+        summary: Unban a user
+        description: |-
+          This endpoint allows a user to unban another user by their userID. 
+        security:
+          - LegacyAuth: []
+        operationId: unbanUser
+        parameters:
+        - in: path
+          name: userID
+          required: true
+          description: current userID
+          schema:
+            type: string
+          - in: path
+          name: banUserID
+            required: true
+          description: userID of the person the account owner wants to unban
+            schema:
+              type: string
+        responses:
+          '200':
+            description: User unbanned successfully
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: "User unbanned"
+                    userID:
+                      type: string
+                      example: "Shireen19"
+            
+          '400':
+            description: UserID not found
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    error:
+                      type: string
+                      example: "UserID not found"
+            
+  /user/{userID}/profile:
     get:
       tags: ["user"]
       summary: Get User Profile
       description: |-
-        This endpoint allows you to retrieve a user's profile information by their userID.
+        This endpoint allows you to retrieve your profile information by their userID.
       security:
         - LegacyAuth: []
       operationId: getUserProfile
       parameters:
         - in: path
-          name: userId
+          name: userID
           required: true
           description: UserID allowing to retrieve the profile
           schema:
@@ -372,15 +443,15 @@ paths:
                     type: string
                     example: "profile stream unavailable"
           
-  /photo/{photoID}/like/{userID}:
+  /user/{userID}/photo/{photoID}/like:
     post:
       tags: ["like"]
-      summary: Like or unlike a Photo
+      summary: Like a Photo
       description: |-
         This endpoint allows a user to like a photo. If the user has already liked the photo, it will unlike the photo. The photoID is a string that uniquely identifies each photo.
       security:
         - LegacyAuth: []
-      operationId: toggleLikePhoto
+      operationId: likePhoto
       parameters:
         - in: path
           name: photoID
@@ -392,8 +463,7 @@ paths:
         - in: path
           name: userID
           required: true
-          description: |-
-            userID of the person who likes a photo
+          description: identification of the user
           schema:
             type: string
       responses:
@@ -411,9 +481,45 @@ paths:
                     type: string
                     example: "pic1"
 
-    
+    delete:
+      tags: ["photo"]
+      summary: Unlike a photo
+      description: |-
+          This allows a user to unlike a photo.
+      security:
+        - LegacyAuth: []
+      operationId: unlikePhoto
+      parameters:
+          - in: path
+            name: photoID
+            required: true
+            description: photoID to unlike
+            schema:
+              type: string
+              example: "pic1"
+        - in: path
+          name: userID
+          required: true
+          description: ban user
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Photo is unliked 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "photo is unliked"
+                  photoID:
+                    type: string
+                    example: "pic123"
+  
           
-  /photo/{photoID}/comment/{userID}:
+  /user/{userID}/photo/{photoID}/comment:
     post:
       tags: ["comment"]
       summary: comment on a photo
@@ -469,11 +575,11 @@ paths:
         - LegacyAuth: []
       operationId: uncommentPhoto
       parameters:
-        - in: path
-          name: photoID
-          required: true
+          - in: path
+            name: photoID
+            required: true
           description: photoID is required to retrieve the post in which the             user would like to uncomment.
-          schema:
+            schema:
               type: string
               example: "comment1"
         - in: path

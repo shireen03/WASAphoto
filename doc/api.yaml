@@ -23,13 +23,6 @@ paths:
         - LegacyAuth: []
 
       operationId: doLogin
-      parameters:
-      - in: path
-        name: username
-        required: true
-        description: username of the user
-        schema:
-          type: string
       requestBody:
         description: User details
         content:
@@ -67,6 +60,14 @@ paths:
         If successful, it returns a message that the username has been updated. The username can not be set if it already exists.
       security:
         - LegacyAuth: []
+      parameters:
+        - in: path
+          name: username
+          required: true
+          description: |-
+            username for login
+          schema:
+            type: string
       operationId: setMyUsername
       requestBody:
         description: New username
@@ -161,7 +162,7 @@ paths:
       operationId: followUser
       parameters:
         - in: path
-          name: userId
+          name: userID
           required: true
           description: follow user
           schema:
@@ -212,9 +213,15 @@ paths:
         operationId: unfollowUser
         parameters:
           - in: path
-            name: userId
+            name: userID
             required: true
             description: User identifier to unfollow
+            schema:
+              type: string
+          - in: path
+            name: followUserID
+            required: true
+            description: userID of the person the account owner wants to unfollow
             schema:
               type: string
         responses:
@@ -242,7 +249,7 @@ paths:
                       type: string
                       example: "Username not found"
             
-  /user/{userId}/ban/{banUserID}:
+  /user/{userID}/ban/{banUserID}:
     post:
       tags: ["ban"]
       summary: Ban or unban a user
@@ -298,16 +305,17 @@ paths:
           - LegacyAuth: []
         operationId: unbanUser
         parameters:
-        - in: path
-          name: userID
-          required: true
-          description: current userID
-          schema:
-            type: string
           - in: path
-          name: banUserID
+            name: userID
             required: true
-          description: userID of the person the account owner wants to unban
+            description: current userID
+            schema:
+              type: string
+          
+          - in: path
+            name: banUserID
+            required: true
+            description: userID of the person the account owner wants to unban
             schema:
               type: string
         responses:
@@ -490,13 +498,13 @@ paths:
         - LegacyAuth: []
       operationId: unlikePhoto
       parameters:
-          - in: path
-            name: photoID
-            required: true
-            description: photoID to unlike
-            schema:
-              type: string
-              example: "pic1"
+        - in: path
+          name: photoID
+          required: true
+          description: photoID to unlike
+          schema:
+            type: string
+            example: "pic1"
         - in: path
           name: userID
           required: true
@@ -575,13 +583,13 @@ paths:
         - LegacyAuth: []
       operationId: uncommentPhoto
       parameters:
-          - in: path
-            name: photoID
-            required: true
+        - in: path
+          name: photoID
+          required: true
           description: photoID is required to retrieve the post in which the             user would like to uncomment.
-            schema:
-              type: string
-              example: "comment1"
+          schema:
+            type: string
+            example: "comment1"
         - in: path
           name: userID
           required: true

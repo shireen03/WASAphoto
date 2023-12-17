@@ -101,7 +101,7 @@ type AppDatabase interface {
 	SetUsername(string, User) (User, error)
 	//GetUserId(uint64) (User, error)
 	GetStream(User) ([]Stream, error)
-	CheckUserExist(username User) (bool, error)
+	CheckUserExist(User) (bool, error)
 
 	SetBan(Ban) error
 	SetUnBan(Ban) error

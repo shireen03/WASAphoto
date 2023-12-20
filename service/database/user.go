@@ -1,11 +1,19 @@
 package database
 
 func (db *appdbimpl) LogUser(usr User) (User, error) {
-	_, err := db.c.Exec("INSERT INTO user (username) VALUES (?)", usr.Username)
+	checkUser, err := db.CheckUserExist(usr)
 	if err != nil {
 		return User{}, err
 	}
-	return usr, nil
+	if checkUser {
+		return usr, nil
+	} else {
+		_, err := db.c.Exec("INSERT INTO user (username) VALUES (?)", usr.Username)
+		if err != nil {
+			return User{}, err
+		}
+		return usr, nil
+	}
 }
 
 // func(db*appdbimpl) LogIn(username User)(User,error){

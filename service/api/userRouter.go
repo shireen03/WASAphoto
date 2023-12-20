@@ -16,9 +16,13 @@ import (
 func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 	var user database.User
-	user.Username = ps.ByName("username")
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		http.Error(w, "Invalid account creation", http.StatusBadRequest)
+		return
+	}
 
-	_, err := rt.db.LogUser(user)
+	_, err = rt.db.LogUser(user)
 
 	if err != nil {
 		http.Error(w, "Invalid account creation", http.StatusBadRequest)

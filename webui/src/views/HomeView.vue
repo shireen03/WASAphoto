@@ -40,6 +40,7 @@ export default {
 						Export
 					</button>
 				</div>
+				
 				<div class="btn-group me-2">
 					<button type="button" class="btn btn-sm btn-outline-primary" @click="newItem">
 						New
@@ -49,7 +50,11 @@ export default {
 		</div>
 
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
+		<div class="input-row">
+      	<input type="text" v-model="username" placeholder="Search for a user">
+     	</div>
 	</div>
+	
 </template>
 
 <style>

@@ -13,7 +13,7 @@ import (
 // getContextReply is an example of HTTP endpoint that returns "Hello World!" as a plain text. The signature of this
 // handler accepts a reqcontext.RequestContext (see httpRouterHandler).
 
-func (rt *_router) doComment(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
 	photoID, err := strconv.ParseUint(ps.ByName("photoID"), 10, 64)
@@ -48,7 +48,7 @@ func (rt *_router) doComment(w http.ResponseWriter, r *http.Request, ps httprout
 	json.NewEncoder(w).Encode(comment) //send back the comment as confirmation
 }
 
-func (rt *_router) RemoveComment(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
 	photoID, err := strconv.ParseUint(ps.ByName("photoID"), 10, 64)

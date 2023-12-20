@@ -97,7 +97,7 @@ type Stream struct {
 
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
-	CreateUser(User) (User, error)
+	LogUser(User) (User, error)
 	SetUsername(string, User) (User, error)
 	//GetUserId(uint64) (User, error)
 	GetStream(User) ([]Stream, error)

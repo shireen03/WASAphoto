@@ -42,7 +42,7 @@ export default {
 	  <h1 class="h1">Login</h1>
 	  <div class="input-row">
       	<input type="text" v-model="username" placeholder="Enter Username">
-      	<button class="log" @click="buttonLog">Login</button>
+      	<button class="log" @click="dologin">Login</button>
       </div>
 	</div>
   </template>

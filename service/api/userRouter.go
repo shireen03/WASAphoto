@@ -13,17 +13,12 @@ import (
 // getContextReply is an example of HTTP endpoint that returns "Hello World!" as a plain text. The signature of this
 // handler accepts a reqcontext.RequestContext (see httpRouterHandler).
 
-func (rt *_router) LogUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 	var user database.User
 	user.Username = ps.ByName("username")
 
-	userexist, err := rt.db.CheckUserExist(user)
-	if userexist {
-
-	} else {
-		_, err = rt.db.CreateUser(user)
-	}
+	_, err := rt.db.LogUser(user)
 
 	if err != nil {
 		http.Error(w, "Invalid account creation", http.StatusBadRequest)
@@ -33,7 +28,7 @@ func (rt *_router) LogUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	w.WriteHeader(http.StatusCreated)
 	_ = json.NewEncoder(w).Encode(user)
 }
-func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 	var user database.User
 
@@ -52,7 +47,7 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 	json.NewEncoder(w).Encode(newUser)
 }
 
-func (rt *_router) Stream(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 	var user database.User
 	var stream database.Streamer

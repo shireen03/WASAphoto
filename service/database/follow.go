@@ -18,7 +18,7 @@ func (db *appdbimpl) RemoveFollow(follow Follow) error {
 
 func (db *appdbimpl) GetFollowCount(follow Follow) (int, error) {
 	var followCount int
-	err := db.c.QueryRow("SELECT COUNT(*) FROM follow WHERE toFollowID = ? AND userID=?", follow.UserID, follow.FollowedID).Scan(&followCount)
+	err := db.c.QueryRow("SELECT COUNT(*) FROM follow WHERE toFollowID = ?", follow.UserID).Scan(&followCount)
 
 	if err != nil {
 		return 0, err

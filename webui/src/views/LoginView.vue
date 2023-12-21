@@ -3,7 +3,8 @@ export default {
 	data: function() {
 		return {
 			errormsg: null,
-            username: "",
+      username: "",
+      userID:0,
 
 		}
 	},
@@ -17,12 +18,15 @@ export default {
 				let response = await this.$axios.post("/session",{
                     username: this.username
                 });
-				this.username = response.data
+				this.username = response.data.username
+        this.userID = response.data.userID
 
 				localStorage.setItem("username", this.username);
+        localStorage.setItem("userID", this.userID);
 
 
-                this.$router.push({path: '/session'});
+
+        this.$router.push({path: '/session'});
 			} catch (e) {
 				this.errormsg = e.toString();
 			}

@@ -1,16 +1,17 @@
 <script>
 export default {
-	data: function() {
+	info() {
 		return {
+            deets:{
 			errormsg: null,
             username: "",
+            newUsername:"",
+            userID:"",
             followerCount: 0,
-            followerArray: [],
             followingCount: 0,
-            followingArray:[],
-            banArray:[],
-            photoArray:[],
+            bannedCount:0,
             photoCount:0,
+            },
 		}
 	},
 
@@ -19,23 +20,32 @@ export default {
 		 async AccountInfo() {
             
 			try {
-				console.log("Login method called");
+                this.userID=localStorage.getItem("userID");
+                this.username=localStorage.getItem("username")
+				let response = await this.$axios.get("/user/${this.userID}/profile");
+               
+				this.username=response.info.username;
+                this.userID=response.info.userID;
 
-				let response = await this.$axios.get("/user",{
-                    username: this.username
-                });
-				this.username = response.data
-
-				localStorage.setItem("username", this.username);
-
-
-                this.$router.push({path: '/session'});
+            
 			} catch (e) {
 				this.errormsg = e.toString();
 			}
 		
     },
     async setUser(){
+        try{
+            this.userID=localStorage.getItem("userID");
+            let response=await this.$axios.put("/user/${this.userID}/setusername/${this.newUsername}")
+            this.username=this.newUsername;
+            localStorage.setItem("username",this.newUsername);
+        }
+        catch{
+            this.errormsg=e.toString();
+        }
+        
+
+
 
 
     }
@@ -46,24 +56,25 @@ export default {
 }
 </script>
 <template>
-	<h1> Account info </h1>
+    
+    <h1> Account Information </h1>
     <input type="text" v-model="username" placeholder="set username">
 
     <button class="setuser" @click="setUser">update username</button>
-    <div class ="followercount">
-    <h6>Followers: {{ followerCount }} </h6>
-
-
+    <div>
+        <p> Username: {{ this.username }}</p>
+    
     </div>
+    
 	
 </template>
 
 <style>
-.followercount{
+.setuser{
     display: flex;
     flex-direction:column;
     align-items:normal;
-    justify-content:baseline;
+    justify-content:center;
     margin-top: 40px;
     
 

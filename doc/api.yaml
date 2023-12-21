@@ -37,7 +37,7 @@ paths:
                   pattern: 'ˆ.*?$'
                   minLength: 3
                   maxLength: 16
-        required: false
+        required: true
       responses:
         '201':
           description: User log-in action successful
@@ -51,7 +51,7 @@ paths:
                     example: "abcdef012345"
    
 
-  /user/{username}/setusername:
+  /user/{userID}/setusername/{username}:
     put:
       tags: ["user"]
       summary: Sets or updates the user's username 
@@ -357,9 +357,28 @@ paths:
         - in: path
           name: userID
           required: true
-          description: UserID allowing to retrieve the profile
+          description: UserID of the person trying to retrieve the profile
           schema:
             type: string
+            example: 123
+            pattern: 'ˆ.*?$'
+            minLength: 1
+            maxLength: 1000
+requestBody:
+        description: User details
+        content:
+          application/json:
+            schema:
+              description: |- 
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: Maria
+                  pattern: 'ˆ.*?$'
+                  minLength: 3
+                  maxLength: 16
+        required: false
       responses:
         '200':
           description: User profile retrieved successfully
@@ -371,9 +390,12 @@ paths:
                   message:
                     type: string
                     example: "User profile found"
-                  userID: 
+                  username: 
                     type: string
                     example: "shireen1919"
+                    pattern: 'ˆ.*?$'
+                    minLength: 3
+                    maxLength: 16
         
         '404':
           description: User profile not found

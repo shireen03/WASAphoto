@@ -22,11 +22,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	userID, err := strconv.ParseUint(ps.ByName("userID"), 10, 64)
-	if err != nil {
-		http.Error(w, "Invalid user ID", http.StatusBadRequest)
-		return
-	}
+	userID := ps.ByName("userID")
 
 	var comment database.Comment
 	err = json.NewDecoder(r.Body).Decode(&comment)
@@ -57,11 +53,7 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
-	userID, err := strconv.ParseUint(ps.ByName("userID"), 10, 64)
-	if err != nil {
-		http.Error(w, "Invalid user ID", http.StatusBadRequest)
-		return
-	}
+	userID := ps.ByName("userID")
 
 	var comment database.Comment
 	err = json.NewDecoder(r.Body).Decode(&comment)

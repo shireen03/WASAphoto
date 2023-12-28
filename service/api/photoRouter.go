@@ -17,11 +17,7 @@ import (
 func (rt *_router) postPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	var pic database.Photo
 
-	userID, err := strconv.ParseUint(ps.ByName("userID"), 10, 64)
-	if err != nil {
-		http.Error(w, "Invalid user ID", http.StatusBadRequest)
-		return
-	}
+	userID = ps.ByName("userID")
 
 	pic.Picture, err = io.ReadAll(r.Body) //reads image file from requestbody
 	if err != nil {

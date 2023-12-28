@@ -11,10 +11,8 @@ import (
 
 func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
-	userID, err := strconv.ParseUint(ps.ByName("userID"), 10, 64) //converting string to integer (uint64)
-	if err != nil {
-		return
-	}
+	userID := ps.ByName("userID")
+
 	banUserID, err := strconv.ParseUint(ps.ByName("banUserID"), 10, 64)
 	if err != nil {
 		return

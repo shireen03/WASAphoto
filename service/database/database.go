@@ -38,12 +38,12 @@ import (
 )
 
 type User struct {
-	UserID   string `json:"user_id"`
+	UserID   string `json:"userID"`
 	Username string `json:"username"`
 }
 type Photo struct {
 	PhotoID    uint64    `json:"photo_id"`
-	UserID     string    `json:"user_id"`
+	UserID     string    `json:"userID"`
 	UploadTime time.Time `json:"uploadTime"`
 	Date       string    `json:"date"`
 	LikesNum   int       `json:"like_count"`
@@ -54,7 +54,7 @@ type Photo struct {
 
 type Comment struct {
 	CommentID uint64   `json:"comment_id"`
-	UserID    string   `json:"user_id"`
+	UserID    string   `json:"userID"`
 	PhotoID   uint64   `json:"photo_id"`
 	Text      string   `json:"text"`
 	Comments  []string `json:"comments"`
@@ -62,23 +62,23 @@ type Comment struct {
 
 type Like struct {
 	LikeId  uint64 `json:"like_id"`
-	UserID  string `json:"user_id"`
+	UserID  string `json:"userID"`
 	PhotoID uint64 `json:"photo_id"`
 }
 
 type Follow struct {
-	UserID       string   `json:"user_id"`
+	UserID       string   `json:"userID"`
 	FollowID     string   `json:"follow_id"`
 	FollowedID   string   `json:"followed_id"`
 	FollowerList []uint64 `json:"follower_list"`
 }
 
 type Ban struct {
-	UserID    string `json:"user_id"`
+	UserID    string `json:"userID"`
 	BanUserID uint64 `json:"ban_id"`
 }
 type Profile struct {
-	UserID         string `json:"user_id"`
+	UserID         string `json:"userID"`
 	Username       string `json:"username"`
 	Picture        []byte `json:"pic"`
 	PicNumb        int    `json:"pic_numb"`
@@ -88,13 +88,13 @@ type Profile struct {
 
 // this one is to get the array of pictures from users you follow
 type Streamer struct {
-	UserID         string   `json:"user_id"`
+	UserID         string   `json:"userID"`
 	StreamedPhotos []Stream `json:"streamedphotos"`
 }
 
 // this one describes the details of the stream which we will add into the array of pictures in Streamer
 type Stream struct {
-	UserID         string `json:"user_id"`
+	UserID         string `json:"userID"`
 	FollowedUserID uint64 `json:"followed_userID"`
 	PhotoID        uint64 `json:"photo"`
 	Date           string `json:"date"`
@@ -110,7 +110,7 @@ type AppDatabase interface {
 	//GetStream(User) ([]Stream, error)
 	CheckUserExist(User) (bool, error)
 	GetUserWithUsername(username string) (User, error)
-	GetProfile(usr User) (Profile, error)
+	//GetProfile(usr User) (Profile, error)
 
 	SetBan(Ban) error
 	SetUnBan(Ban) error
@@ -155,7 +155,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='user';`).Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
 		userDB := `CREATE TABLE user (
-			UserID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			UserID TEXT NOT NULL,
 			username TEXT  
 			);` //autoincrement cuz each userid is unique
 		_, err = db.Exec(userDB)

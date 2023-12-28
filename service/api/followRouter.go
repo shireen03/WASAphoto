@@ -2,7 +2,6 @@ package api
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/shireen03/WASAphoto/service/api/reqcontext"
@@ -14,18 +13,18 @@ import (
 
 func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
-	userID, err := strconv.ParseUint(ps.ByName("userID"), 10, 64) //converting string to integer (uint64)
-	if err != nil {
-		return
-	}
-	followUserID, err := strconv.ParseUint(ps.ByName("followUserID"), 10, 64)
+	userID := ps.ByName("userID")
+
+	followUserID := ps.ByName("followUserID")
 
 	var follow database.Follow
 	follow.UserID = userID
 	follow.FollowedID = followUserID
 
 	isFollow, err := rt.db.IsFollowing(follow)
-
+	if err != nil {
+		return
+	}
 	if isFollow {
 		err = rt.db.RemoveFollow(follow) //if already following then we unfollow
 		message := "User unfollowed successfully"

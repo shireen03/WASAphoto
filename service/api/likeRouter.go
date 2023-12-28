@@ -14,12 +14,12 @@ import (
 
 func (rt *_router) like(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "text/plain")
-	userID, err := strconv.ParseUint(ps.ByName("userID"), 10, 64) //converting string to integer (uint64)
+	userID := ps.ByName("userID") //converting string to integer (uint64)
+
+	photoID, err := strconv.ParseUint(ps.ByName("photoID"), 10, 64)
 	if err != nil {
 		return
 	}
-	photoID, err := strconv.ParseUint(ps.ByName("photoID"), 10, 64)
-
 	var like database.Like
 	like.UserID = userID
 	like.PhotoID = photoID

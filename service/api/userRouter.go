@@ -21,7 +21,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
-	_, err = rt.db.LogUser(user)
+	newuser, err := rt.db.LogUser(user)
 
 	if err != nil {
 		http.Error(w, "Invalid account creation", http.StatusBadRequest)
@@ -29,7 +29,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(user)
+	_ = json.NewEncoder(w).Encode(newuser.UserID)
 }
 
 func (rt *_router) getMyProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {

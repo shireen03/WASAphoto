@@ -15,15 +15,11 @@ func (db *appdbimpl) LogUser(usr User) (User, error) {
 
 		return user, nil
 	} else {
-		newuser, err := db.c.Exec("INSERT INTO user (username) VALUES (?)", usr.Username)
+		usr.UserID = usr.Username
+		_, err := db.c.Exec("INSERT INTO user (username, userID) VALUES (?,?)", usr.Username, usr.UserID)
 		if err != nil {
 			return User{}, err
 		}
-		numID, err := newuser.LastInsertId()
-		if err != nil {
-			return User{}, err
-		}
-		usr.UserID = strconv.FormatInt(numID, 10)
 
 		return usr, nil
 	}
@@ -59,17 +55,17 @@ func (db *appdbimpl) SetUsername(username string, user User) (User, error) {
 	return user, nil
 }
 
-func (db *appdbimpl) GetProfile(usr User) (Profile, error) {
-	var profile Profile
-	var follow Follow
-	profile.Username = usr.Username
-	profile.UserID = usr.UserID
+// func (db *appdbimpl) GetProfile(usr User) (Profile, error) {
+// 	var profile Profile
+// 	var follow Follow
+// 	profile.Username = usr.Username
+// 	profile.UserID = usr.UserID
 
-	follow.UserID = usr.UserID
+// 	follow.UserID = usr.UserID
 
-	profile.FollowedCount, err = db.GetFollowCount(follow)
+// 	profile.FollowedCount, err = db.GetFollowCount(follow)
 
-}
+// }
 
 // func (db *appdbimpl) GetStream(user User) ([]Stream, error) {
 // 	//select photos from followed users with likes and comments count, in reverse chronological order

@@ -21,33 +21,37 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
-	newuser, err := rt.db.LogUser(user)
+	newuser, err := rt.db.LogtheUser(user)
 
 	if err != nil {
-		http.Error(w, "Invalid account creation", http.StatusBadRequest)
+		http.Error(w, "Invalid account creationssdkslfjòlskadjfljsadòlfss", http.StatusConflict)
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+	err = json.NewEncoder(w).Encode(newuser)
+	if err != nil {
+		http.Error(w, "Invalid account creatioijouiuounssss", http.StatusConflict)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(newuser.UserID)
 }
 
-func (rt *_router) getMyProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	w.Header().Set("content-type", "application/json")
-	var user database.User
-	user.UserID = ps.ByName("userID")
-	user.Username = ps.ByName("username")
+// func (rt *_router) getMyProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+// 	w.Header().Set("content-type", "application/json")
+// 	var user database.User
+// 	user.UserID = ps.ByName("userID")
+// 	user.Username = ps.ByName("username")
 
-	_, err := rt.db.GetProfile(user)
+// 	_, err := rt.db.GetProfile(user)
 
-	if err != nil {
-		http.Error(w, "Invalid account creation", http.StatusBadRequest)
-		return
-	}
+// 	if err != nil {
+// 		http.Error(w, "Invalid account creation", http.StatusBadRequest)
+// 		return
+// 	}
 
-	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(user)
-}
+// 	w.WriteHeader(http.StatusCreated)
+// 	_ = json.NewEncoder(w).Encode(user)
+// }
 
 // func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 // 	w.Header().Set("content-type", "application/json")

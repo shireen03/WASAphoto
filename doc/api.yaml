@@ -19,8 +19,6 @@ paths:
         If the user does not exist, it will be created,
         and an identifier is returned.
         If the user does exist, the user identifier is returned.
-      security:
-        - LegacyAuth: []
 
       operationId: doLogin
       requestBody:
@@ -28,7 +26,7 @@ paths:
         content:
           application/json:
             schema:
-              description: |- 
+              description: jlkjljòljò
               type: object
               properties:
                 username:
@@ -59,10 +57,17 @@ paths:
         This endpoint allows the user to set their new username.
         If successful, it returns a message that the username has been updated. The username can not be set if it already exists.
       security:
-        - LegacyAuth: []
+        - bearerAuth: []
       parameters:
         - in: path
           name: username
+          required: true
+          description: |-
+            username for login
+          schema:
+            type: string
+        - in: path
+          name: userID
           required: true
           description: |-
             username for login
@@ -111,7 +116,7 @@ paths:
       description: |-
         This endpoint allows a user to upload a photo.
       security:
-        - LegacyAuth: []     
+        - bearerAuth: []     
       operationId: uploadPhoto
       parameters:
         - in: path
@@ -158,7 +163,7 @@ paths:
         This endpoint allows a user to follow or unfollow another user by their userID.
         If the user is already following the specified user, they will unfollow them, and if not, they will follow them.
       security:
-        - LegacyAuth: []
+        - bearerAuth: []
       operationId: followUser
       parameters:
         - in: path
@@ -209,7 +214,7 @@ paths:
         description: |-
           This endpoint allows a user to unfollow another user by their userID. 
         security:
-          - LegacyAuth: []
+          - bearerAuth: []
         operationId: unfollowUser
         parameters:
           - in: path
@@ -257,7 +262,7 @@ paths:
         This endpoint allows a user to ban another user by their userID.
         If the user is already banned, they will unban them, otherwise, they will ban them.
       security:
-        - LegacyAuth: []
+        - bearerAuth: []
       operationId: banUser
       parameters:
         - in: path
@@ -302,7 +307,7 @@ paths:
         description: |-
           This endpoint allows a user to unban another user by their userID. 
         security:
-          - LegacyAuth: []
+          - bearerAuth: []
         operationId: unbanUser
         parameters:
           - in: path
@@ -351,7 +356,7 @@ paths:
       description: |-
         This endpoint allows you to retrieve your profile information by their userID.
       security:
-        - LegacyAuth: []
+        - bearerAuth: []
       operationId: getUserProfile
       parameters:
         - in: path
@@ -364,21 +369,7 @@ paths:
             pattern: 'ˆ.*?$'
             minLength: 1
             maxLength: 1000
-requestBody:
-        description: User details
-        content:
-          application/json:
-            schema:
-              description: |- 
-              type: object
-              properties:
-                username:
-                  type: string
-                  example: Maria
-                  pattern: 'ˆ.*?$'
-                  minLength: 3
-                  maxLength: 16
-        required: false
+ 
       responses:
         '200':
           description: User profile retrieved successfully
@@ -415,7 +406,7 @@ requestBody:
       description: |-
         This endpoint allows a user to retrieve their stream. A user's stream is a set of photos from other users that they follow. The stream of photos are arranged in reverse chronological order, which includes information about the date and time of each photo uploaded, the number of likes, and the comments on each post.
       security:
-        - LegacyAuth: []
+        - bearerAuth: []
       operationId: getMyStream
       parameters:
         - in: path
@@ -480,7 +471,7 @@ requestBody:
       description: |-
         This endpoint allows a user to like a photo. If the user has already liked the photo, it will unlike the photo. The photoID is a string that uniquely identifies each photo.
       security:
-        - LegacyAuth: []
+        - bearerAuth: []
       operationId: likePhoto
       parameters:
         - in: path
@@ -517,7 +508,7 @@ requestBody:
       description: |-
           This allows a user to unlike a photo.
       security:
-        - LegacyAuth: []
+        - bearerAuth: []
       operationId: unlikePhoto
       parameters:
         - in: path
@@ -556,7 +547,7 @@ requestBody:
       description: |-
         This endpoint allows a user to write a comment on a photo. 
       security:
-        - LegacyAuth: []
+        - bearerAuth: []
       operationId: commentPhoto
       parameters:
         - in: path
@@ -602,7 +593,7 @@ requestBody:
       description: |-
           This allows a user to uncomment on a photo using the commentID.
       security:
-        - LegacyAuth: []
+        - bearerAuth: []
       operationId: uncommentPhoto
       parameters:
         - in: path
@@ -638,7 +629,7 @@ requestBody:
       description: |-
         This endpoint allows a user to delete a photo.
       security:
-        - LegacyAuth: []
+        - bearerAuth: []
       operationId: deletePhoto
       parameters:
         - in: path
@@ -677,10 +668,9 @@ requestBody:
                 
 components:
   securitySchemes:
-    LegacyAuth:
-      type: apiKey
-      in: header
-      name: X-api-key
+    bearerAuth:
+      type: http
+      scheme: bearer
       description: |-
         App session token value. This value is sent by the server in the login
         and session refresh APIs.

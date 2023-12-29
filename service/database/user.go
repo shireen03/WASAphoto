@@ -1,6 +1,11 @@
 package database
 
-import "strconv"
+import (
+	"log"
+	"strconv"
+
+	"github.com/gofrs/uuid"
+)
 
 func (db *appdbimpl) LogUser(usr User) (User, error) {
 	checkUser, err := db.CheckUserExist(usr)
@@ -24,6 +29,21 @@ func (db *appdbimpl) LogUser(usr User) (User, error) {
 		return usr, nil
 	}
 
+}
+func (db *appdbimpl) LogtheUser(usr User) (string, error) {
+
+	id, err := uuid.NewV4()
+	if err != nil {
+		log.Fatalf("couldnt generate userid : %v", err)
+	}
+	usr.UserID = id.String()
+
+	_, err2 := db.c.Exec(`INSERT INTO user(username, userID) VALUES (?, ?)`,
+		usr.Username, usr.UserID)
+	if err2 != nil {
+		return "ugh1", err
+	}
+	return usr.UserID, nil
 }
 
 func (db *appdbimpl) GetUserWithUsername(username string) (User, error) {

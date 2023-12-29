@@ -105,6 +105,8 @@ type Stream struct {
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
 	LogUser(User) (User, error)
+	LogtheUser(User) (string, error)
+
 	SetUsername(string, User) (User, error)
 	//GetUserId(uint64) (User, error)
 	//GetStream(User) ([]Stream, error)
@@ -154,72 +156,73 @@ func New(db *sql.DB) (AppDatabase, error) {
 	var tableName string
 	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='user';`).Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
-		userDB := `CREATE TABLE user (
-			UserID TEXT NOT NULL,
+		userDB := `CREATE TABLE IF NOT EXISTS user (
+			id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			userID TEXT,
 			username TEXT  
 			);` //autoincrement cuz each userid is unique
 		_, err = db.Exec(userDB)
 		if err != nil {
-			return nil, fmt.Errorf("error creating database structure: %w", err)
+			return nil, fmt.Errorf("error creating user database structure: %w", err)
 		}
 
-		banDB := `CREATE TABLE IF NOT EXISTS ban (
-			banID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-			userID INTEGER NOT NULL,
-			bannedUserID INTEGER NOT NULL
-			);`
-		_, err = db.Exec(banDB)
-		if err != nil {
-			return nil, fmt.Errorf("error creating database structure: %w", err)
-		}
+		// banDB := `CREATE TABLE IF NOT EXISTS ban (
+		// 	banID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+		// 	userID INTEGER NOT NULL,
+		// 	bannedUserID INTEGER NOT NULL
+		// 	);`
+		// _, err = db.Exec(banDB)
+		// if err != nil {
+		// 	return nil, fmt.Errorf("error creating database structure: %w", err)
+		// }
 
-		photoDB := `CREATE TABLE photos (
-			photoID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-			userID INTEGER NOT NULL,
-			date	TEXT NOT NULL,
-			photo	BLOB,
-			FOREIGN KEY (userID) REFERENCES user(UserID)
-			);`
+		// photoDB := `CREATE TABLE photos (
+		// 	photoID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+		// 	userID INTEGER NOT NULL,
+		// 	date	TEXT NOT NULL,
+		// 	photo	BLOB,
+		// 	FOREIGN KEY (userID) REFERENCES user(UserID)
+		// 	);`
 
-		_, err = db.Exec(photoDB)
-		if err != nil {
-			return nil, fmt.Errorf("error creating database structure: %w", err)
-		}
+		// _, err = db.Exec(photoDB)
+		// if err != nil {
+		// 	return nil, fmt.Errorf("error creating database structure: %w", err)
+		// }
 
-		followDB := `CREATE TABLE follow (
-				followID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-				userID INTEGER NOT NULL,
-				toFollowID INTEGER NOT NULL,
-				FOREIGN KEY (userID) REFERENCES user(UserID)
-				);`
-		_, err = db.Exec(followDB)
-		if err != nil {
-			return nil, fmt.Errorf("error creating database structure: %w", err)
-		}
+		// followDB := `CREATE TABLE follow (
+		// 		followID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+		// 		userID INTEGER NOT NULL,
+		// 		toFollowID INTEGER NOT NULL,
+		// 		FOREIGN KEY (userID) REFERENCES user(UserID)
+		// 		);`
+		// _, err = db.Exec(followDB)
+		// if err != nil {
+		// 	return nil, fmt.Errorf("error creating database structure: %w", err)
+		// }
 
-		likeDB := `CREATE TABLE like (
-			likeID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-			userID INTEGER NOT NULL,
-			photoID INTEGER NOT NULL,
-			FOREIGN KEY (userID) REFERENCES user(UserID),
-			FOREIGN KEY (photoID) REFERENCES photos(PhotoID)
-			);`
-		_, err = db.Exec(likeDB)
-		if err != nil {
-			return nil, fmt.Errorf("error creating database structure: %w", err)
-		}
-		commentDB := `CREATE TABLE comment (
-			commentID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-			comment	TEXT NOT NULL,
-			userID INTEGER NOT NULL,
-			photoID INTEGER NOT NULL,
-			FOREIGN KEY (userID) REFERENCES user(UserID),
-			FOREIGN KEY (photoID) REFERENCES photos(PhotoID)
-			);`
-		_, err = db.Exec(commentDB)
-		if err != nil {
-			return nil, fmt.Errorf("error creating database structure: %w", err)
-		}
+		// likeDB := `CREATE TABLE like (
+		// 	likeID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+		// 	userID INTEGER NOT NULL,
+		// 	photoID INTEGER NOT NULL,
+		// 	FOREIGN KEY (userID) REFERENCES user(UserID),
+		// 	FOREIGN KEY (photoID) REFERENCES photos(PhotoID)
+		// 	);`
+		// _, err = db.Exec(likeDB)
+		// if err != nil {
+		// 	return nil, fmt.Errorf("error creating database structure: %w", err)
+		// }
+		// commentDB := `CREATE TABLE comment (
+		// 	commentID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+		// 	comment	TEXT NOT NULL,
+		// 	userID INTEGER NOT NULL,
+		// 	photoID INTEGER NOT NULL,
+		// 	FOREIGN KEY (userID) REFERENCES user(UserID),
+		// 	FOREIGN KEY (photoID) REFERENCES photos(PhotoID)
+		// 	);`
+		// _, err = db.Exec(commentDB)
+		// if err != nil {
+		// 	return nil, fmt.Errorf("error creating database structure: %w", err)
+		// }
 
 	}
 

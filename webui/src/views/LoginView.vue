@@ -4,8 +4,7 @@ export default {
 		return {
 			errormsg: null,
       username: "",
-      userID:0,
-
+      userID: "",
 		}
 	},
 	methods: {
@@ -13,16 +12,17 @@ export default {
 	async dologin(){
 		try {
 				
-				console.log("Login method called");
+				console.log("Login method called")
+
 
 				let response = await this.$axios.post("/session",{
                     username: this.username
                 });
-				this.username = response.data.username
-        this.userID = response.data.userID
-
+        console.log(response);
+      
 				localStorage.setItem("username", this.username);
-        localStorage.setItem("userID", this.userID);
+        localStorage.setItem("userID", response.data);
+
 
 
 

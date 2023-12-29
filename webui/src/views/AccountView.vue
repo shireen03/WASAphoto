@@ -1,6 +1,6 @@
 <script>
 export default {
-	info() {
+	info(): {
 		return {
             deets:{
 			errormsg: null,

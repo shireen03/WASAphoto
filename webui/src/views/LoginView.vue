@@ -18,15 +18,23 @@ export default {
 				let response = await this.$axios.post("/session",{
                     username: this.username
                 });
+        
         console.log(response);
       
 				localStorage.setItem("username", this.username);
         localStorage.setItem("userID", response.data);
 
+        this.userID = response.data;
+       
+        this.$axios.defaults.headers.common['Authorization']=`Bearer ${localStorage.getItem("userID")}`;
+
+        console.log("uhh");
+        console.log(localStorage.getItem("userID"));
 
 
 
-        this.$router.push({path: '/session'});
+
+        this.$router.push({path: "/session"});
 			} catch (e) {
 				this.errormsg = e.toString();
 			}
@@ -76,7 +84,7 @@ input[type="text"] {
 
 .log{
   padding:5px 10px;
-  margin-top: 40px;
+  margin-top: 10px;
 }
 </style>
 

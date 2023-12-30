@@ -145,9 +145,129 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Photo"
-        
+                
+                
+  /user/{userID}/followers:
+    get:
+      tags: ["follow"]
+      summary: user's followers
+      description: |-
+        This endpoint allows a user to retrieve their followers
+      security:
+        - bearerAuth: []
+      operationId: followersUser
+      parameters:
+        - in: path
+          name: userID
+          required: true
+          description: follow user
+          schema:
+            type: string
+      responses:
+        '200':
+          description: list of users followers 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Followers"
+        '400':
+          description: Username not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "username not found"
+
+  /user/{userID}/followings:
+    get:
+      tags: ["follow"]
+      summary: user's followings
+      description: |-
+        This endpoint allows a user to retrieve their followers
+      security:
+        - bearerAuth: []
+      operationId: followingsUser
+      parameters:
+        - in: path
+          name: userID
+          required: true
+          description: follow user
+          schema:
+            type: string
+      responses:
+        '200':
+          description: list of users followings 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Followers"
+        '400':
+          description: Username not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "username not found"
+                    
+                    
+                  
           
-  /user/{userID}/follow/{followUserID}:
+                  
+          
+  /username/{username}/follow/{followUsername}:
+  
+    get:
+      tags: ["follow"]
+      summary: check whether the user is following another user
+      description: |-
+        This endpoint checks whether a user is already following the user
+      security:
+        - bearerAuth: []
+      operationId: checkFollowUser
+      parameters:
+        - in: path
+          name: username
+          required: true
+          description: username of the current user.
+          schema:
+            type: string
+        - in: path
+          name: followUsername
+          required: true
+          description: check whether the the current user is following the other user with followUsername.
+          schema:
+              $ref: "#/components/schemas/Followers"
+      responses:
+        '200':
+          description: check whether the user is following another user 
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isFollowing:
+                    type: boolean 
+                    description: isFollowing is true if the user is following another user. Otherwise its false, if they are not already following the other user
+                    example: true
+        '400':
+          description: UserID not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "userID not found"
+                  
+          
+  
     post:
       tags: ["follow"]
       summary: Follow or unfollow a user
@@ -159,15 +279,15 @@ paths:
       operationId: followUser
       parameters:
         - in: path
-          name: userID
+          name: username
           required: true
-          description: follow user
+          description: username of the current user
           schema:
             type: string
         - in: path
-          name: followUserID
+          name: followUsername
           required: true
-          description: userID of the person the account owner wants to follow
+          description: username of the person the account owner wants to follow
           schema:
             type: string
         
@@ -202,15 +322,15 @@ paths:
         operationId: unfollowUser
         parameters:
           - in: path
-            name: userID
+            name: username
             required: true
-            description: User identifier to unfollow
+            description: current user's username
             schema:
               type: string
           - in: path
-            name: followUserID
+            name: followUsername
             required: true
-            description: userID of the person the account owner wants to unfollow
+            description: username of the person the account owner wants to unfollow
             schema:
               type: string
         responses:
@@ -231,10 +351,53 @@ paths:
                       type: string
                       example: "Username not found"
             
-  /user/{userID}/ban/{banUserID}:
+  /user/{username}/ban/{banUsername}:
+    get:
+      tags: ["ban"]
+      summary: Ban user
+      description: |-
+        This endpoint checks if the user is already banned
+      security:
+        - bearerAuth: []
+      operationId: checkBanUser
+      parameters:
+        - in: path
+          name: username
+          required: true
+          description: current user's username
+          schema:
+            $ref: "#/components/schemas/Username"
+        - in: path
+          name: banUsername
+          required: true
+          description: the username of a user the current user wants to ban
+          schema:
+            $ref: "#/components/schemas/Username"
+      responses:
+        '200':
+          description: User banned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isBan:
+                    type: boolean
+                    description: isBan is either true or false. Its true if the current user has banned another user. False otherwise.
+                    example: true
+        '400':
+          description: UserID not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "UserID not found"
     post:
       tags: ["ban"]
-      summary: Ban or unban a user
+      summary: Ban user
       description: |-
         This endpoint allows a user to ban another user by their userID.
         If the user is already banned, they will unban them, otherwise, they will ban them.
@@ -243,17 +406,17 @@ paths:
       operationId: banUser
       parameters:
         - in: path
-          name: userID
+          name: username
           required: true
-          description: current userID
+          description: current user's username
           schema:
-            type: string
+            $ref: "#/components/schemas/Username"
         - in: path
-          name: banUserID
+          name: banUsername
           required: true
-          description: ban user with the banUserID
+          description: the username of a user the current user wants to ban
           schema:
-            $ref: "#/components/schemas/Ban"
+            $ref: "#/components/schemas/Username"
       responses:
         '200':
           description: User banned
@@ -281,19 +444,18 @@ paths:
         operationId: unbanUser
         parameters:
           - in: path
-            name: userID
+            name: username
             required: true
-            description: current userID
+            description: current username
             schema:
-              type: string
-              example: "123-123-123"
+              $ref: "#/components/schemas/Username"
           
           - in: path
-            name: banUserID
+            name: banUsername
             required: true
-            description: userID of the person the account owner wants to unban
+            description: username of the person the current user wants to unban
             schema:
-              type: string
+              $ref: "#/components/schemas/Username"
         responses:
           '200':
             description: User unbanned successfully
@@ -313,7 +475,7 @@ paths:
                       type: string
                       example: "UserID not found"
             
-  /user/{userID}/profile:
+  /username/{username}/profile:
     get:
       tags: ["user"]
       summary: Get User Profile
@@ -324,15 +486,15 @@ paths:
       operationId: getUserProfile
       parameters:
         - in: path
-          name: userID
+          name: username
           required: true
-          description: UserID of the person trying to retrieve the profile
+          description: Username of the person trying to retrieve the profile
           schema:
             type: string
-            example: 123
+            example: maria
             pattern: 'ˆ.*?$'
             minLength: 1
-            maxLength: 1000
+            maxLength: 32
  
       responses:
         '200':
@@ -588,13 +750,14 @@ components:
           pattern: 'ˆ.*?$'
           minLength: 3
           maxLength: 16
+  
 
     Profile:
       type: object
       description: user profile
       properties:
       
-        Username:
+        username:
           type: string
           example: Maria
           pattern: 'ˆ.*?$'
@@ -607,7 +770,7 @@ components:
           description: Amount of followers following the user.
           example: 24
 
-        Following: 
+        following: 
           type: integer
           description: Amount of followers the user is following
           example: 24
@@ -617,7 +780,7 @@ components:
           description: Amount of photos the user has posted
           example: 24
           
-        UploadedPhotos:
+        uploadedPhotos:
           type: array
           description: user's photos in reverse chronological order.
           minItems: 0
@@ -744,6 +907,30 @@ components:
           pattern: '^.*?$'
           description: The userID of the person you would like to follow
           example: "123-123-123"
+  
+    Followers:
+      type: object
+      description: the followers or followings of the user
+      properties:
+        followers:
+          type: array
+          minLength: 3
+          maxLength: 100000
+          pattern: '^.*?$'
+          description: a list of all the followers of the user
+          items:
+            type: object
+            description: the username of a user that follows the current user or that the current user follows. 
+            properties:
+              username:
+                description: username.
+                type: string
+                pattern: '^.*?$'
+                example: shireen123
+                minLength: 3
+                maxLength: 16
+                
+    
     Ban:
       type: object
       description: A string that uniquely identifies a banned user in the banned users list.

@@ -30,4 +30,16 @@ func (db *appdbimpl) RemovePic(picID Photo) error {
 	}
 
 	return nil // void if no errors
+
+}
+
+func (db *appdbimpl) GetPhotoCount(userID string) (int, error) {
+	var photoCount int
+	err := db.c.QueryRow("SELECT COUNT(*) FROM photos WHERE userID = ?", userID).Scan(&photoCount)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return photoCount, nil
 }

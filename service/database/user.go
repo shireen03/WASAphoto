@@ -2,23 +2,27 @@ package database
 
 import (
 	"log"
-	"strconv"
 
 	"github.com/gofrs/uuid"
 )
 
 func (db *appdbimpl) LogUser(usr User) (User, error) {
-	checkUser, err := db.CheckUserExist(usr)
+	checkUser, err := db.CheckUserExist(usr.Username)
+
 	if err != nil {
 		return User{}, err
 	}
 	if checkUser {
-		user, err := db.GetUserWithUsername(usr.Username)
+		var existUser User
+		user, err := db.GetUserIDWithUsername(usr.Username)
 		if err != nil {
 			return User{}, err
 		}
+		existUser.UserID = user
+		existUser.Username = usr.Username
 
-		return user, nil
+		return existUser, nil
+
 	} else {
 		usr.UserID = usr.Username
 		_, err := db.c.Exec("INSERT INTO user (username, userID) VALUES (?,?)", usr.Username, usr.UserID)
@@ -32,36 +36,58 @@ func (db *appdbimpl) LogUser(usr User) (User, error) {
 }
 func (db *appdbimpl) LogtheUser(usr User) (string, error) {
 
-	id, err := uuid.NewV4()
-	if err != nil {
-		log.Fatalf("couldnt generate userid : %v", err)
-	}
-	usr.UserID = id.String()
+	checkUser, err := db.CheckUserExist(usr.Username)
 
-	_, err2 := db.c.Exec(`INSERT INTO user(username, userID) VALUES (?, ?)`,
-		usr.Username, usr.UserID)
-	if err2 != nil {
-		return "ugh1", err
+	if err != nil {
+		return "error in checking user existing", nil
 	}
-	return usr.UserID, nil
+	if checkUser {
+		user, err := db.GetUserIDWithUsername(usr.Username)
+		if err != nil {
+			return "error retrieving userID with username", nil
+		}
+		return user, nil
+
+	} else {
+		id, err := uuid.NewV4()
+		if err != nil {
+			log.Fatalf("couldnt generate userid : %v", err)
+		}
+		usr.UserID = id.String()
+
+		_, err2 := db.c.Exec(`INSERT INTO user(username, userID) VALUES (?, ?)`, usr.Username, usr.UserID)
+		if err2 != nil {
+			return "ugh1", err
+		}
+		return usr.UserID, nil
+	}
 }
 
-func (db *appdbimpl) GetUserWithUsername(username string) (User, error) {
-	var user User
-	var tempUserID int64
+func (db *appdbimpl) GetUsernameWithUserID(userID string) (string, error) {
+	var username string
 
-	err := db.c.QueryRow("SELECT userID, username FROM user WHERE username=?", username).Scan(&tempUserID, &user.Username)
+	err := db.c.QueryRow("SELECT username FROM user WHERE userID=?", userID).Scan(&username)
 	if err != nil {
-		return User{}, err
+		return "", err
 	}
-	user.UserID = strconv.FormatInt(tempUserID, 10)
 
-	return user, nil
+	return username, nil
 }
 
-func (db *appdbimpl) CheckUserExist(username User) (bool, error) {
+func (db *appdbimpl) GetUserIDWithUsername(username string) (string, error) {
+	var usrID string
+
+	err := db.c.QueryRow("SELECT userID FROM user WHERE username=?", username).Scan(&usrID)
+	if err != nil {
+		return "hihi didnt work", err
+	}
+
+	return usrID, nil
+}
+
+func (db *appdbimpl) CheckUserExist(username string) (bool, error) {
 	var userExists bool
-	err := db.c.QueryRow("SELECT EXISTS(SELECT 1 from user WHERE username=?)", username.Username).Scan(&userExists)
+	err := db.c.QueryRow("SELECT EXISTS(SELECT 1 from user WHERE username=?)", username).Scan(&userExists)
 	if err != nil {
 		return false, err
 	}

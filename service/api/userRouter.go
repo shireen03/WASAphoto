@@ -36,41 +36,73 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 
 }
 
-// func (rt *_router) getMyProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-// 	w.Header().Set("content-type", "application/json")
-// 	var user database.User
-// 	user.UserID = ps.ByName("userID")
-// 	user.Username = ps.ByName("username")
+func (rt *_router) getMyProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+	w.Header().Set("content-type", "application/json")
+	var profile database.Profile
 
-// 	_, err := rt.db.GetProfile(user)
+	profile.Username = ps.ByName("username")
+	checkuser, err := rt.db.CheckUserExist(profile.Username)
+	if err != nil {
+		http.Error(w, "error checking whether username is in db", http.StatusBadRequest)
+		return
+	}
+	if !checkuser {
+		http.Error(w, "user with username doesnt exist", http.StatusBadRequest)
+		return
 
-// 	if err != nil {
-// 		http.Error(w, "Invalid account creation", http.StatusBadRequest)
-// 		return
-// 	}
+	}
 
-// 	w.WriteHeader(http.StatusCreated)
-// 	_ = json.NewEncoder(w).Encode(user)
-// }
+	profileuserID, err := rt.db.GetUserIDWithUsername(profile.Username)
+	if err != nil {
+		http.Error(w, "cant get userID with username", http.StatusBadRequest)
+		return
+	}
+	profile.UserID = profileuserID
 
-// func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-// 	w.Header().Set("content-type", "application/json")
-// 	var user database.User
+	photocount, err := rt.db.GetPhotoCount(profile.UserID)
+	if err != nil {
+		http.Error(w, "cant get photo count", http.StatusBadRequest)
+		return
+	}
+	profile.PicNumb = photocount
 
-// 	UserID, err := strconv.ParseUint(ps.ByName("userID"), 10, 64)
-// 	if err != nil {
-// 		http.Error(w, "Invalid userID", http.StatusBadRequest)
-// 		return
-// 	}
-// 	user.UserID = UserID
+	followCount, err := rt.db.GetFollowCount(profile.UserID)
+	if err != nil {
+		http.Error(w, "cant get follow count", http.StatusBadRequest)
+		return
+	}
+	profile.FollowedCount = followCount
 
-// 	username := ps.ByName("userID")
+	followingCount, err := rt.db.GetFollowingCount(profile.UserID)
+	if err != nil {
+		http.Error(w, "cant get following count", http.StatusBadRequest)
+		return
+	}
+	profile.FollowedCount = followingCount
 
-// 	newUser, err := rt.db.SetUsername(username, user)
+	w.WriteHeader(http.StatusCreated)
+	_ = json.NewEncoder(w).Encode(profile)
+}
 
-// 	w.WriteHeader(http.StatusOK)
-// 	json.NewEncoder(w).Encode(newUser)
-// }
+func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+	w.Header().Set("content-type", "application/json")
+	var user database.User
+
+	userID := ps.ByName("userID")
+
+	user.UserID = userID
+
+	username := ps.ByName("userID")
+
+	newUser, err := rt.db.SetUsername(username, user)
+	if err != nil {
+		http.Error(w, "Invalid username update", http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(newUser)
+}
 
 // func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 // 	w.Header().Set("content-type", "application/json")

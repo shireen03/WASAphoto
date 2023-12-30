@@ -42,7 +42,7 @@ type User struct {
 	Username string `json:"username"`
 }
 type Photo struct {
-	PhotoID    uint64    `json:"photo_id"`
+	PhotoID    uint64    `json:"photoID"`
 	UserID     string    `json:"userID"`
 	UploadTime time.Time `json:"uploadTime"`
 	Date       string    `json:"date"`
@@ -55,20 +55,20 @@ type Photo struct {
 type Comment struct {
 	CommentID uint64   `json:"comment_id"`
 	UserID    string   `json:"userID"`
-	PhotoID   uint64   `json:"photo_id"`
+	PhotoID   uint64   `json:"photoID"`
 	Text      string   `json:"text"`
 	Comments  []string `json:"comments"`
 }
 
 type Like struct {
-	LikeId  uint64 `json:"like_id"`
+	LikeId  uint64 `json:"likeID"`
 	UserID  string `json:"userID"`
-	PhotoID uint64 `json:"photo_id"`
+	PhotoID uint64 `json:"photoID"`
 }
 
 type Follow struct {
 	UserID       string   `json:"userID"`
-	FollowID     string   `json:"follow_id"`
+	FollowID     string   `json:"followID"`
 	FollowedID   string   `json:"followed_id"`
 	FollowerList []uint64 `json:"follower_list"`
 }
@@ -110,9 +110,9 @@ type AppDatabase interface {
 	SetUsername(string, User) (User, error)
 	//GetUserId(uint64) (User, error)
 	//GetStream(User) ([]Stream, error)
-	CheckUserExist(User) (bool, error)
-	GetUserWithUsername(username string) (User, error)
-	//GetProfile(usr User) (Profile, error)
+	CheckUserExist(string) (bool, error)
+	GetUserIDWithUsername(username string) (string, error)
+	GetUsernameWithUserID(userID string) (string, error)
 
 	SetBan(Ban) error
 	SetUnBan(Ban) error
@@ -120,6 +120,7 @@ type AppDatabase interface {
 
 	SetPic(Photo) error
 	RemovePic(Photo) error
+	GetPhotoCount(userID string) (int, error)
 
 	SetLike(Like) error
 	RemoveLike(Like) error
@@ -134,9 +135,11 @@ type AppDatabase interface {
 
 	SetFollow(Follow) error
 	RemoveFollow(Follow) error
-	GetFollowCount(Follow) (int, error)
-	GetFollowingCount(Follow) (int, error)
+	GetFollowingCount(userID string) (int, error)
+	GetFollowCount(userID string) (int, error)
 	IsFollowing(follow Follow) (bool, error)
+	GetFollowings(userID string) ([]string, error)
+	GetFollowers(userID string) ([]string, error)
 
 	Ping() error
 }
@@ -166,63 +169,63 @@ func New(db *sql.DB) (AppDatabase, error) {
 			return nil, fmt.Errorf("error creating user database structure: %w", err)
 		}
 
-		// banDB := `CREATE TABLE IF NOT EXISTS ban (
-		// 	banID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-		// 	userID INTEGER NOT NULL,
-		// 	bannedUserID INTEGER NOT NULL
-		// 	);`
-		// _, err = db.Exec(banDB)
-		// if err != nil {
-		// 	return nil, fmt.Errorf("error creating database structure: %w", err)
-		// }
+		banDB := `CREATE TABLE IF NOT EXISTS ban (
+			banID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			userID TEXT NOT NULL,
+			bannedUserID TEXT NOT NULL
+			);`
+		_, err = db.Exec(banDB)
+		if err != nil {
+			return nil, fmt.Errorf("error creating database structure: %w", err)
+		}
 
-		// photoDB := `CREATE TABLE photos (
-		// 	photoID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-		// 	userID INTEGER NOT NULL,
-		// 	date	TEXT NOT NULL,
-		// 	photo	BLOB,
-		// 	FOREIGN KEY (userID) REFERENCES user(UserID)
-		// 	);`
+		photoDB := `CREATE TABLE photos (
+			photoID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			userID TEXT NOT NULL,
+			date	TEXT NOT NULL,
+			photo	BLOB,
+			FOREIGN KEY (userID) REFERENCES user(UserID)
+			);`
 
-		// _, err = db.Exec(photoDB)
-		// if err != nil {
-		// 	return nil, fmt.Errorf("error creating database structure: %w", err)
-		// }
+		_, err = db.Exec(photoDB)
+		if err != nil {
+			return nil, fmt.Errorf("error creating database structure: %w", err)
+		}
 
-		// followDB := `CREATE TABLE follow (
-		// 		followID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-		// 		userID INTEGER NOT NULL,
-		// 		toFollowID INTEGER NOT NULL,
-		// 		FOREIGN KEY (userID) REFERENCES user(UserID)
-		// 		);`
-		// _, err = db.Exec(followDB)
-		// if err != nil {
-		// 	return nil, fmt.Errorf("error creating database structure: %w", err)
-		// }
+		followDB := `CREATE TABLE follow (
+				followID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+				userID TEXT NOT NULL,
+				toFollowID TEXT NOT NULL,
+				FOREIGN KEY (userID) REFERENCES user(userID)
+				);`
+		_, err = db.Exec(followDB)
+		if err != nil {
+			return nil, fmt.Errorf("error creating database structure: %w", err)
+		}
 
-		// likeDB := `CREATE TABLE like (
-		// 	likeID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-		// 	userID INTEGER NOT NULL,
-		// 	photoID INTEGER NOT NULL,
-		// 	FOREIGN KEY (userID) REFERENCES user(UserID),
-		// 	FOREIGN KEY (photoID) REFERENCES photos(PhotoID)
-		// 	);`
-		// _, err = db.Exec(likeDB)
-		// if err != nil {
-		// 	return nil, fmt.Errorf("error creating database structure: %w", err)
-		// }
-		// commentDB := `CREATE TABLE comment (
-		// 	commentID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-		// 	comment	TEXT NOT NULL,
-		// 	userID INTEGER NOT NULL,
-		// 	photoID INTEGER NOT NULL,
-		// 	FOREIGN KEY (userID) REFERENCES user(UserID),
-		// 	FOREIGN KEY (photoID) REFERENCES photos(PhotoID)
-		// 	);`
-		// _, err = db.Exec(commentDB)
-		// if err != nil {
-		// 	return nil, fmt.Errorf("error creating database structure: %w", err)
-		// }
+		likeDB := `CREATE TABLE like (
+			likeID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			userID TEXT NOT NULL,
+			photoID TEXT NOT NULL,
+			FOREIGN KEY (userID) REFERENCES user(userID),
+			FOREIGN KEY (photoID) REFERENCES photos(photoID)
+			);`
+		_, err = db.Exec(likeDB)
+		if err != nil {
+			return nil, fmt.Errorf("error creating database structure: %w", err)
+		}
+		commentDB := `CREATE TABLE comment (
+			commentID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			comment	TEXT NOT NULL,
+			userID TEXT NOT NULL,
+			photoID TEXT NOT NULL,
+			FOREIGN KEY (userID) REFERENCES user(userID),
+			FOREIGN KEY (photoID) REFERENCES photos(photoID)
+			);`
+		_, err = db.Exec(commentDB)
+		if err != nil {
+			return nil, fmt.Errorf("error creating database structure: %w", err)
+		}
 
 	}
 

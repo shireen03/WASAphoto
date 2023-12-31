@@ -2,7 +2,7 @@ package database
 
 // set pic
 func (db *appdbimpl) SetPic(pic Photo) error {
-	_, err := db.c.Exec("INSERT INTO photos (photoID, userID, date, photo) VALUES (?, ?, ?, ?)", pic.PhotoID, pic.UserID, pic.Date, pic.Picture)
+	_, err := db.c.Exec("INSERT INTO photos ( userID, date, photo) VALUES (?, ?, ?)", pic.UserID, pic.Date, pic.Picture)
 	if err != nil {
 		return err // Return if error
 	}

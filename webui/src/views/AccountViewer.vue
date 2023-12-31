@@ -13,26 +13,54 @@ export default {
             followingCount: 3,
             bannedCount:0,
             photoCount:0,
-            isFollow: true,
+            isFollow: false,
+            isBan: false,
 
             },
 		}
 	},
 
+
     created(){
         this.CheckBanFollow();
+        this.AccountInfo();
     },
+
+
 
 	methods: {
 
         async CheckBanFollow(){
             try {
+
                 this.userUsername=this.$route.params.username;
                 this.currentUser=localStorage.getItem("username");
                 console.log(this.currentUser);
 
                 let response = await this.$axios.get("/username/"+ this.currentUser + "/follow/" + this.userUsername);
-                console.log(response)
+                console.log(response);
+                console.log(response.data);
+                this.isFollow=response.data;
+                if(this.isFollow){
+                    document.getElementById("follow").innerHTML = "unfollowmf";
+                    this.AccountInfo(); 
+                }else{
+                    document.getElementById("follow").innerHTML = "followmf"; 
+                    this.AccountInfo();
+                }
+
+                let banResponse = await this.$axios.get("/username/"+ this.currentUser + "/ban/" + this.userUsername);
+                console.log(banResponse);
+                console.log("ban: "+ banResponse.data);
+                this.isBan=banResponse.data;
+                if(this.isBan){
+                    document.getElementById("ban").innerHTML = "unban"; 
+                }else{
+                    document.getElementById("ban").innerHTML = "ban"; 
+                }
+       
+
+
 
                 
             } catch (error) {
@@ -80,30 +108,63 @@ export default {
 		
     },
     async getFollow(){
-        try{
-            console.log("method called")
-            console.log(this.userID)
+        try{     
+           
+            console.log("follow method called");
 
-            let response=await this.$axios.get("/user/" + this.userID + "/followers")
-            console.log(response);
+            this.currentUser=localStorage.getItem("username");
+            console.log(this.isFollow);
+            if(this.isFollow){
+                let response=await this.$axios.delete("/username/" + this.currentUser + "/follow/" + this.userUsername);
+                this.isFollow=false;
+                document.getElementById("follow").innerHTML = "follow"; 
+                 console.log(response);
+            }else{
+                let response=await this.$axios.post("/username/" + this.currentUser + "/follow/" + this.userUsername);
+                this.isFollow=true;
+                console.log(response);
+                document.getElementById("follow").innerHTML = "unnnfollow";
+
+
+          
+            
         }
-        catch{
+       
+    }
+     catch{
             this.errormsg=e.toString();
         }
+
+
     },
-    async following(){
-        try{
 
-            this.userID=localStorage.getItem("userID");
-            let response=await this.$axios.get("/user/" + this.userID + "/followings")
-        
+    async getBan(){
+        try{     
+           
+            console.log("ban method called");
+
+            this.currentUser=localStorage.getItem("username");
+            console.log(this.isBan);
+            if(this.isBan){
+                let response=await this.$axios.delete("/username/" + this.currentUser + "/ban/" + this.userUsername);
+                this.isBan=false;
+                document.getElementById("ban").innerHTML = "ban"; 
+                 console.log(response);
+            }else{
+                let response=await this.$axios.post("/username/" + this.currentUser + "/ban/" + this.userUsername);
+                this.isBan=true;
+                console.log(response);
+                document.getElementById("ban").innerHTML = "unban";
+
+
+          
+            
         }
-        catch{
+       
+    }
+     catch{
             this.errormsg=e.toString();
         }
-        
-
-
 
 
     },
@@ -113,14 +174,10 @@ export default {
         await this.follow;
         await this.following;
         return;
-    }
-
-
-
-  
     },
+    },}
 
-} 
+ 
 
 </script>
 <template>
@@ -130,8 +187,8 @@ export default {
     <h2> <span>{{this.userUsername}}</span> Account   </h2>
 
     <div class="buttons">
-        <button class="followers" @click="getFollow" >{{isFollowing==true? "follow":"unfollow" }}</button>
-        <button class="followers" @click="getFollow">ban</button>
+        <button class="followers"  id="follow" @click="getFollow"> grr</button>
+        <button class="followers" @click="getBan" id="ban">baner</button>
     </div>
     </div>
   

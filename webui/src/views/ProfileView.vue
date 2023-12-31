@@ -3,191 +3,229 @@ export default {
 	data: function() {
 		return {
             errormsg: null,
-            userID: "",
             deets:{
 			errormsg: null,
-            username: "",
-            newUsername:"",
+            userUsername: "",
             userID:"",
             followerCount: 2,
-            followers:[],
             followingCount: 3,
-            following:[],
             bannedCount:0,
             photoCount:0,
+            isFollow: false,
+            isBan: false,
 
             },
 		}
 	},
 
+
     created(){
         this.AccountInfo();
     },
 
+
+
 	methods: {
+
+       
 
 		 async AccountInfo() {
             
 			try {
+                this.userUsername=localStorage.getItem("username");
+                this.userID=localStorage.getItem("userID");
+                console.log(this.userUsername);
+                let response = await this.$axios.get("/username/"+ this.userUsername + "/profile");
+                console.log(response);
+                this.followerCount=response.data.followed_count;
+                console.log(this.followerCount);
+                this.followingCount=response.data.following_count;
+                console.log(this.followerCount);
+                this.photoCount=response.data.pic_numb;
 
-                console.log("grrr")
+                /*
+                console.log("plsplspls work")
+
+                this.userUsername=this.$route.params.username;
+                console.log(this.userUsername);
+
+
+                console.log(response)
                 this.userID=localStorage.getItem("userID");
                 this.username=localStorage.getItem("username");
 
                 console.log(this.userID);
                 console.log(typeof this.userID);
 
-				let response = await this.$axios.get("/username/"+ this.username + "/profile",);
-                console.log(response);
                
 				this.username=response.data.username;
                 console.log(this.username);
-                this.followerCount=response.data.followed_count;
-                console.log(this.followerCount);
-                this.followingCount=response.data.following_count;
-                console.log(this.followerCount);
-                this.photoCount=response.data.pic_numb
-
+                
+*/
             
 			} catch (e) {
 				this.errormsg = e.toString();
 			}
 		
     },
+    async refresh() {
+			this.loading = true;
+			this.errormsg = null;
+			try {
+				let response = await this.$axios.get("/username/"+ this.userUsername + "/profile");
+				console.log(response);
+                console.log("refreshed");
+
+			} catch (e) {
+				this.errormsg = e.toString();
+			}
+			this.loading = false;
+		},
+	},
+	
     async getFollow(){
-        try{
-            console.log("method called")
-            console.log(this.userID)
-
-            let response=await this.$axios.get("/user/" + this.userID + "/followers")
-            console.log(response);
+        try{     
+           
+            
+          
+            
         }
-        catch{
+       
+    
+     catch{
             this.errormsg=e.toString();
         }
-    },
-    async following(){
-        try{
-
-            this.userID=localStorage.getItem("userID");
-            let response=await this.$axios.get("/user/" + this.userID + "/followings")
-        
-        }
-        catch{
-            this.errormsg=e.toString();
-        }
-        
-
-
 
 
     },
 
+    async uploadPhoto(){
+        try{     
+           
+                let response=await this.$axios.post("/photo/upload/" + this.userID);
+                console.log(response);
+                this.refresh();
+        
+            }
+       
+    
+     catch{
+            this.errormsg=e.toString();
+        }
+
+
+    },
     async mounted(){
-         this.AccountInfo;
+        this.AccountInfo();
         await this.follow;
         await this.following;
+        this.refresh();
         return;
-    }
-
-
-
-  
     },
 
-} 
+    }
+
+ 
 
 </script>
 <template>
+    <head>
+        <script> AccountInfo()</script>
+    </head>
     
-    <h1> Account Information </h1>
+    <div class="titleButtons">
 
-    <p class="username"> <b>Username:</b> <span> {{ this.username }}</span> </p>
-    <div class="update">
-    
-
-    <input type="text" v-model="username" placeholder="set username">
-
-    <button class="setuser" @click="AccountInfo">update username</button>
+    <h2> <span>{{this.userUsername}}</span> Account   </h2>
 
     </div>
-    <div class="accountinfouser">
-        
-        <button class="followers" @click="getFollow" >followers: {{ this.followerCount }}</button>
-        <button class="followers" >following: {{ this.followingCount }}</button>
-        <button class="followers" >banned: {{ this.followingCount }}</button>
-        <button class="followers" >pictures: {{ this.photoCount }}</button>
+   
+   
+  
+    <div class="counts">
+        <div class="followCount">
+            <h6> followers </h6>
+             <h6> <span>{{this.followerCount}}</span></h6>
+        </div>
+
+        <div class="followingCount">
+            <h6> following </h6>
+            <h6><span>{{ this.followingCount }}</span></h6>
+        </div>
+
+        <div class="photoCount">
+            <h6> photos </h6>
+            <h6><span>{{ this.photoCount }}</span></h6>
+        </div>
+    </div>
+
+    <div class="upload">
+    <div class="btn-group btn-group-sm">
+					<input type="file" accept="image/*" class="btn btn-xs" @change="uploadFile" ref="file">
+					<button class="btn btn-default " @click="uploadPhoto">Upload</button>
+				</div>
+    </div>
 
     
-    </div>
-    
+
+  
+
+
 	
 </template>
 
 <style>
 
-.followers{
-  
-    border:0cqw;
-    color: black;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 8px;
-    width: 160px;
-    height: 24px;
-    margin-top: 20px;
-    margin-right: 50px;
 
-}
-.setuser{
-    display: flex;
-    flex-direction:column;
+
+.titleButtons{
+    display:-webkit-flex;
+    flex-direction:row;
     align-items:normal;
-    justify-content:center;
-    margin-top: 10px;
-    margin-right: 30px;
-
-
-}
-
-.accountinfouser{
-    display: flex;
-    flex-direction:column;
-    justify-content:last baseline;
-    margin-top: 50px;
-    margin-right: 300px;
-
+    justify-content:first baseline;
+    margin-top: 37px;
+    gap: 80px;
 
 }
-
-.username{
-    display: flex;
-    flex-direction:column;
-    justify-content:last baseline;
-    margin-top: 50px;
-    margin-right: 300px;
-
-
+.upload{
+    text-align: 100px;
+    margin-left: 600px;
 }
 
-input[type="text"] {
-  padding: 5px;
-  margin-right: 30px;
-  margin-top: 10px;
-}
-.update{
+
+
+
+.counts{
     display: flex;
     flex-direction:row;
     align-items:normal;
-    justify-content: last baseline;
-    margin-top: 40px;
-    
-
+    justify-content:baseline;
+    margin-top: 50px;
+    gap: 70px;
 
 }
+.followCount{
+    display: flex;
+    flex-direction:row;
+    align-items:normal;
+    justify-content:baseline;
+    gap: 10px;
+}
+.followingCount{
+    display: flex;
+    flex-direction:row;
+    align-items:normal;
+    justify-content:baseline;
+    gap: 10px;
+}
+.photoCount{
+    display: flex;
+    flex-direction:row;
+    align-items:normal;
+    justify-content:baseline;
+    gap: 10px;
+}
+
+
 
 
 </style>

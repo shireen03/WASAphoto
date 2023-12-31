@@ -1,7 +1,7 @@
 package database
 
 func (db *appdbimpl) SetBan(ban Ban) error {
-	_, err := db.c.Exec("INSERT INTO ban (userID, bannedUserID) VALUES (?, ?)", ban.UserID, ban.BanUserID)
+	_, err := db.c.Exec("INSERT INTO ban (username, bannedUsername) VALUES (?, ?)", ban.Username, ban.BanUsername)
 	if err != nil {
 		return err
 	}
@@ -9,7 +9,7 @@ func (db *appdbimpl) SetBan(ban Ban) error {
 }
 
 func (db *appdbimpl) SetUnBan(unban Ban) error {
-	_, err := db.c.Exec("DELETE FROM ban WHERE bannedUserID=? AND userID=? ", unban.BanUserID, unban.UserID)
+	_, err := db.c.Exec("DELETE FROM ban WHERE bannedUsername=? AND username=? ", unban.BanUsername, unban.Username)
 	if err != nil {
 		return err
 	}
@@ -18,7 +18,7 @@ func (db *appdbimpl) SetUnBan(unban Ban) error {
 
 func (db *appdbimpl) BanCheck(userID1 Ban) (bool, error) {
 	var isBan bool
-	err := db.c.QueryRow("SELECT EXISTS(SELECT 1 FROM bans WHERE bannerID=? AND bannedUserID=?)", userID1.UserID, userID1.BanUserID).Scan(&isBan)
+	err := db.c.QueryRow("SELECT EXISTS(SELECT 1 FROM ban WHERE username=? AND bannedUsername=?)", userID1.Username, userID1.BanUsername).Scan(&isBan)
 	if err != nil {
 		return false, err
 	}

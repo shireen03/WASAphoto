@@ -131,7 +131,7 @@ paths:
               schema: 
                 type: object
                 properties:
-                  photoID:
+                  file:
                     type: string
                     format: binary
                     
@@ -351,7 +351,7 @@ paths:
                       type: string
                       example: "Username not found"
             
-  /user/{username}/ban/{banUsername}:
+  /username/{username}/ban/{banUsername}:
     get:
       tags: ["ban"]
       summary: Ban user
@@ -799,12 +799,22 @@ components:
       description: A photo
       properties:
         photoID: 
-          type: string
+          type: integer
           description: the unique identifier for a photo
           minLength: 3
           maxLength: 500
-          pattern: '^.*?$'
-          example: "123-123-123"
+          example: 1
+        userID:
+          type: string
+          description: user identifier
+          minLength: 10
+          maxLength: 80
+        file:
+          type: string
+          format: binary
+          minLength: 1
+          maxLength: 100000
+          
         likeCount:
           type: integer
           description: The number of likes of the photo.

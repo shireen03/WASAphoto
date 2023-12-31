@@ -1,7 +1,7 @@
 package database
 
 func (db *appdbimpl) SetFollow(follow Follow) error {
-	_, err := db.c.Exec("INSERT INTO follow (followID, userID, toFollowID) VALUES (?, ?, ?)", follow.FollowID, follow.UserID, follow.FollowedID)
+	_, err := db.c.Exec("INSERT INTO follow ( userID, toFollowID) VALUES (?, ?)", follow.UserID, follow.FollowedID)
 	if err != nil {
 		return err
 	}
@@ -9,7 +9,7 @@ func (db *appdbimpl) SetFollow(follow Follow) error {
 }
 
 func (db *appdbimpl) RemoveFollow(follow Follow) error {
-	_, err := db.c.Exec("DELETE FROM follow WHERE toFollowID=?", follow.FollowedID)
+	_, err := db.c.Exec("DELETE FROM follow WHERE toFollowID=? AND userID=?", follow.FollowedID, follow.UserID)
 	if err != nil {
 		return err
 	}
@@ -40,7 +40,7 @@ func (db *appdbimpl) GetFollowingCount(userID string) (int, error) {
 
 func (db *appdbimpl) IsFollowing(follow Follow) (bool, error) {
 	var isFollowing bool
-	err := db.c.QueryRow("SELECT EXISTS(SELECT 1 FROM follow WHERE followID=? AND toFollowID=?)", follow.UserID, follow.FollowedID).Scan(&isFollowing)
+	err := db.c.QueryRow("SELECT EXISTS(SELECT 1 FROM follow WHERE  userID=? AND toFollowID=?)", follow.UserID, follow.FollowedID).Scan(&isFollowing)
 	if err != nil {
 		return false, err
 	}

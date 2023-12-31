@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"strconv"
@@ -14,7 +15,7 @@ import (
 // getContextReply is an example of HTTP endpoint that returns "Hello World!" as a plain text. The signature of this
 // handler accepts a reqcontext.RequestContext (see httpRouterHandler).
 
-func (rt *_router) postPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	var pic database.Photo
 
 	userID := ps.ByName("userID")
@@ -26,8 +27,8 @@ func (rt *_router) postPhoto(w http.ResponseWriter, r *http.Request, ps httprout
 
 	}
 	pic.UserID = userID
-	pic.UploadTime = time.Now()
-	pic.Date = pic.UploadTime.Format("2006-01-02 15:04:05")
+	nowtime := time.Now()
+	pic.Date = nowtime.Format("2006-01-02 15:04:05")
 	pic.Picture = photo
 
 	err = rt.db.SetPic(pic)
@@ -37,6 +38,7 @@ func (rt *_router) postPhoto(w http.ResponseWriter, r *http.Request, ps httprout
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	_ = json.NewEncoder(w).Encode(pic)
 }
 func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	var pic database.Photo

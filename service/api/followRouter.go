@@ -18,33 +18,40 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 
 	followUsername := ps.ByName("followUsername")
 
-	currentUserID, err := rt.db.GetUserIDWithUsername(username)
-	if err != nil {
-		http.Error(w, "cant get userID with username", http.StatusBadRequest)
-		return
-	}
-	followUserID, err := rt.db.GetUserIDWithUsername(followUsername)
-	if err != nil {
-		http.Error(w, "cant get userID with username", http.StatusBadRequest)
-		return
-	}
-
 	var follow database.Follow
-	follow.UserID = currentUserID
-	follow.FollowedID = followUserID
+	follow.UserID = username
+	follow.FollowedID = followUsername
 
 	isFollow, err := rt.db.IsFollowing(follow)
 	if err != nil {
 		return
 	}
-	if isFollow {
-		err = rt.db.RemoveFollow(follow) //if already following then we unfollow
-		message := "User unfollowed successfully"
-		w.Write([]byte(message))
-
-	} else {
-		err = rt.db.SetFollow(follow)
+	if !isFollow {
+		_ = rt.db.SetFollow(follow)
 		message := "User followed successfully"
+		w.Write([]byte(message))
+	}
+
+}
+
+func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+	w.Header().Set("content-type", "application/json")
+	username := ps.ByName("username")
+
+	followUsername := ps.ByName("followUsername")
+
+	var follow database.Follow
+	follow.UserID = username
+	follow.FollowedID = followUsername
+
+	isFollow, err := rt.db.IsFollowing(follow)
+	if err != nil {
+		return
+	}
+
+	if isFollow {
+		_ = rt.db.RemoveFollow(follow)
+		message := "User unfollowed successfully"
 		w.Write([]byte(message))
 	}
 
@@ -89,20 +96,9 @@ func (rt *_router) isFollowing(w http.ResponseWriter, r *http.Request, ps httpro
 
 	followUsername := ps.ByName("followUsername")
 
-	currentUserID, err := rt.db.GetUserIDWithUsername(username)
-	if err != nil {
-		http.Error(w, "cant get userID with username", http.StatusBadRequest)
-		return
-	}
-	followUserID, err := rt.db.GetUserIDWithUsername(followUsername)
-	if err != nil {
-		http.Error(w, "cant get userID with username", http.StatusBadRequest)
-		return
-	}
-
 	var follow database.Follow
-	follow.UserID = currentUserID
-	follow.FollowedID = followUserID
+	follow.UserID = username
+	follow.FollowedID = followUsername
 
 	isFollow, err := rt.db.IsFollowing(follow)
 	if err != nil {

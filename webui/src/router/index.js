@@ -14,6 +14,10 @@ const router = createRouter({
 	routes: [
 		{path: '/', component: login},
 		{path: '/session', component: SearchView},
+		{path: '/search', component: SearchView},
+		{path: '/home', component: HomeView},
+
+
 		{path: '/user/:username/account', component: AccountViewer},
 		{path: '/profile', component: ProfileView},
 	//	{path: '/users/:Username/', component: AccountView},

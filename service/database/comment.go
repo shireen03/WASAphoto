@@ -17,7 +17,7 @@ func (db *appdbimpl) RemoveComment(c Comment) error {
 }
 
 func (db *appdbimpl) RemoveBanComment(ban Ban) error {
-	_, err := db.c.Exec("DELETE FROM comment WHERE userID=?", ban.BanUserID)
+	_, err := db.c.Exec("DELETE FROM comment WHERE userID=?", ban.BanUsername)
 	if err != nil {
 		return err
 	}

@@ -74,8 +74,8 @@ type Follow struct {
 }
 
 type Ban struct {
-	UserID    string `json:"userID"`
-	BanUserID uint64 `json:"ban_id"`
+	Username    string `json:"userID"`
+	BanUsername string `json:"ban_id"`
 }
 type Profile struct {
 	UserID         string `json:"userID"`
@@ -171,8 +171,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 		banDB := `CREATE TABLE IF NOT EXISTS ban (
 			banID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-			userID TEXT NOT NULL,
-			bannedUserID TEXT NOT NULL
+			username TEXT NOT NULL,
+			bannedUsername TEXT NOT NULL
 			);`
 		_, err = db.Exec(banDB)
 		if err != nil {
@@ -184,7 +184,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 			userID TEXT NOT NULL,
 			date	TEXT NOT NULL,
 			photo	BLOB,
-			FOREIGN KEY (userID) REFERENCES user(UserID)
+			FOREIGN KEY (userID) REFERENCES user(userID)
 			);`
 
 		_, err = db.Exec(photoDB)

@@ -34,30 +34,31 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"time"
 )
 
 type User struct {
 	UserID   string `json:"userID"`
-	Username string `json:"username"`
+	Username string `json:"Username"`
 }
 type Photo struct {
 	PhotoID    uint64    `json:"photoID"`
 	UserID     string    `json:"userID"`
-	UploadTime time.Time `json:"uploadTime"`
 	Date       string    `json:"date"`
 	LikesNum   int       `json:"like_count"`
 	CommentNum int       `json:"comment_count"`
-	Comments   []string  `json:"comment_list"`
-	Picture    []byte    `json:"pic"`
+	Comments   []Comment `json:"comment_list"`
+	Photo      []byte    `json:"photo"`
+	Pictures   []Photo   `json:"pic"`
 }
 
 type Comment struct {
-	CommentID uint64   `json:"comment_id"`
-	UserID    string   `json:"userID"`
-	PhotoID   uint64   `json:"photoID"`
-	Text      string   `json:"text"`
-	Comments  []string `json:"comments"`
+	CommentID     uint64 `json:"comment_id"`
+	UserID        string `json:"userID"`
+	Username      string `json:"username"`
+	PhotoUsername string `json:"photoUsername"`
+	PhotoUserID   string `json:"photoUserID"`
+	PhotoID       uint64 `json:"photoID"`
+	Text          string `json:"text"`
 }
 
 type Like struct {
@@ -74,16 +75,17 @@ type Follow struct {
 }
 
 type Ban struct {
-	Username    string `json:"userID"`
-	BanUsername string `json:"ban_id"`
+	UserID    string `json:"userID"`
+	BanUserID string `json:"ban_id"`
 }
 type Profile struct {
-	UserID         string `json:"userID"`
-	Username       string `json:"username"`
-	Picture        []byte `json:"pic"`
-	PicNumb        int    `json:"pic_numb"`
-	FollowingCount int    `json:"following_count"`
-	FollowedCount  int    `json:"followed_count"`
+	UserID         string  `json:"userID"`
+	Username       string  `json:"username"`
+	Pictures       []Photo `json:"pic"`
+	PicNumb        int     `json:"pic_numb"`
+	FollowingCount int     `json:"following_count"`
+	FollowedCount  int     `json:"followed_count"`
+	BanCount       int     `json:"ban_count"`
 }
 
 // this one is to get the array of pictures from users you follow
@@ -107,7 +109,7 @@ type AppDatabase interface {
 	LogUser(User) (User, error)
 	LogtheUser(User) (string, error)
 
-	SetUsername(string, User) (User, error)
+	SetUsername(string, User) (string, error)
 	//GetUserId(uint64) (User, error)
 	//GetStream(User) ([]Stream, error)
 	CheckUserExist(string) (bool, error)
@@ -117,10 +119,12 @@ type AppDatabase interface {
 	SetBan(Ban) error
 	SetUnBan(Ban) error
 	BanCheck(ppl1 Ban) (bool, error)
+	GetBanCount(userID string) (int, error)
 
 	SetPic(Photo) error
 	RemovePic(Photo) error
 	GetPhotoCount(userID string) (int, error)
+	GetPhotos(userID string) ([]Photo, error)
 
 	SetLike(Like) error
 	RemoveLike(Like) error
@@ -132,6 +136,7 @@ type AppDatabase interface {
 	//GetCommentList(uint64)([]Comment,error)
 	GetCommentCount(Photo) (int, error)
 	RemoveBanComment(ban Ban) error
+	GetComments(pic Photo) ([]Comment, error)
 
 	SetFollow(Follow) error
 	RemoveFollow(Follow) error
@@ -171,8 +176,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 		banDB := `CREATE TABLE IF NOT EXISTS ban (
 			banID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-			username TEXT NOT NULL,
-			bannedUsername TEXT NOT NULL
+			userID TEXT NOT NULL,
+			banUserID TEXT NOT NULL
 			);`
 		_, err = db.Exec(banDB)
 		if err != nil {
@@ -216,9 +221,10 @@ func New(db *sql.DB) (AppDatabase, error) {
 		}
 		commentDB := `CREATE TABLE comment (
 			commentID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-			comment	TEXT NOT NULL,
 			userID TEXT NOT NULL,
 			photoID TEXT NOT NULL,
+			comment	TEXT NOT NULL,
+			photoUser TEXT NOT NULL,
 			FOREIGN KEY (userID) REFERENCES user(userID),
 			FOREIGN KEY (photoID) REFERENCES photos(photoID)
 			);`

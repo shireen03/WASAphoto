@@ -51,13 +51,9 @@ export default {
 
 <template>
     <div class="center">
-	  <h1 class="h1">Login</h1>
-    <div class="gro">
-  <input type="text" id="username" v-model="this.username" placeholder="Enter new username" ><br>
-  <button class="btn btn-outline-secondary" id="submit" @click="dologin" > submit  </button>
-  </div>
-
-</div>
+	  <h1 class="h1">ERRORRRR</h1>
+	
+	</div>
   </template>
 
 <style>
@@ -70,16 +66,22 @@ export default {
   min-height: 50vh;
 
 }
-
-
-.gro{
-    display:flex;
-    flex-direction: row;
-    align-items:flex-end;
-    justify-content:start;
+.input-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
 }
 
+input[type="text"] {
+  padding: 5px;
+  margin-right: 30px;
+  margin-top: 40px;
+}
 
-
+.log{
+  padding:5px 10px;
+  margin-top: 10px;
+}
 </style>
 

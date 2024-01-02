@@ -15,12 +15,19 @@ import (
 func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 	username := ps.ByName("username")
+	userID, err := rt.db.GetUserIDWithUsername(username)
+	if err != nil {
+		return
+	}
 
 	followUsername := ps.ByName("followUsername")
-
+	followUserID, err := rt.db.GetUserIDWithUsername(followUsername)
+	if err != nil {
+		return
+	}
 	var follow database.Follow
-	follow.UserID = username
-	follow.FollowedID = followUsername
+	follow.UserID = userID
+	follow.FollowedID = followUserID
 
 	isFollow, err := rt.db.IsFollowing(follow)
 	if err != nil {
@@ -37,12 +44,19 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 	username := ps.ByName("username")
+	userID, err := rt.db.GetUserIDWithUsername(username)
+	if err != nil {
+		return
+	}
 
 	followUsername := ps.ByName("followUsername")
-
+	followUserID, err := rt.db.GetUserIDWithUsername(followUsername)
+	if err != nil {
+		return
+	}
 	var follow database.Follow
-	follow.UserID = username
-	follow.FollowedID = followUsername
+	follow.UserID = userID
+	follow.FollowedID = followUserID
 
 	isFollow, err := rt.db.IsFollowing(follow)
 	if err != nil {
@@ -93,12 +107,19 @@ func (rt *_router) getFollowings(w http.ResponseWriter, r *http.Request, ps http
 func (rt *_router) isFollowing(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 	username := ps.ByName("username")
+	userID, err := rt.db.GetUserIDWithUsername(username)
+	if err != nil {
+		return
+	}
 
 	followUsername := ps.ByName("followUsername")
-
+	followUserID, err := rt.db.GetUserIDWithUsername(followUsername)
+	if err != nil {
+		return
+	}
 	var follow database.Follow
-	follow.UserID = username
-	follow.FollowedID = followUsername
+	follow.UserID = userID
+	follow.FollowedID = followUserID
 
 	isFollow, err := rt.db.IsFollowing(follow)
 	if err != nil {

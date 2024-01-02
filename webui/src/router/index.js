@@ -5,6 +5,8 @@ import ProfileView from '../views/ProfileView.vue'
 
 import AccountViewer from '../views/AccountViewer.vue'
 import SearchView from '../views/SearchView.vue'
+import Error from '../views/Error.vue'
+
 
 
 
@@ -16,6 +18,8 @@ const router = createRouter({
 		{path: '/session', component: SearchView},
 		{path: '/search', component: SearchView},
 		{path: '/home', component: HomeView},
+		{path: '/error', component: Error},
+
 
 
 		{path: '/user/:username/account', component: AccountViewer},

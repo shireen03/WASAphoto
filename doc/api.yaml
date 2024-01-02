@@ -145,6 +145,34 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Photo"
+
+    get:
+      tags: ["photo"]
+      summary: get list of users photos
+      description: |-
+        This endpoint allows a user to see their photos
+      security:
+        - bearerAuth: []     
+      operationId: getPhotolist
+      parameters:
+        - in: path
+          name: userID
+          required: true
+          description: |-
+           userID of the account we view their posted photos
+          schema:
+            type: string
+            example: "123-123-123"
+      
+      responses:
+        '200':
+          description: Photo uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PhotoList"
+
+
                 
                 
   /user/{userID}/followers:
@@ -780,13 +808,16 @@ components:
           description: Amount of photos the user has posted
           example: 24
           
+    PhotoList:
+      type: object
+      description: user profile
+      properties:
         uploadedPhotos:
           type: array
           description: user's photos in reverse chronological order.
           minItems: 0
           maxItems: 9999999
-          items: { $ref: "#/components/schemas/Photo"}
-          
+          items: { $ref: "#/components/schemas/Photo"} 
           example: 
             - photoID: "123-123-123"
               commentCount: 10
@@ -976,7 +1007,7 @@ components:
 
         commentUser:
           type: string
-          description: the username of a comment posted
+          description: the username of the person who commented 
           pattern: '^.*?$'
           minLength: 3
           maxLength: 16
@@ -989,6 +1020,28 @@ components:
           minLength: 1
           maxLength: 3000
           example: nice pic
+
+
+        photoID: 
+          description:  the photo identifier.
+          type: string
+          pattern: '^.*?$'
+          example: "123-123-123"
+          minLength: 3
+          maxLength: 50
+
+        photoUser:
+          type: string
+          description: the username of the person who posted the photo
+          pattern: '^.*?$'
+          minLength: 3
+          maxLength: 16
+          example: "shireen123" 
+        
+
+
+
+        
 
     
 

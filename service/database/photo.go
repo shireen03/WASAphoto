@@ -2,7 +2,7 @@ package database
 
 // set pic
 func (db *appdbimpl) SetPic(pic Photo) error {
-	_, err := db.c.Exec("INSERT INTO photos ( userID, date, photo) VALUES (?, ?, ?)", pic.UserID, pic.Date, pic.Picture)
+	_, err := db.c.Exec("INSERT INTO photos ( userID, date, photo) VALUES (?, ?, ?)", pic.UserID, pic.Date, pic.Photo)
 	if err != nil {
 		return err // Return if error
 	}
@@ -42,4 +42,41 @@ func (db *appdbimpl) GetPhotoCount(userID string) (int, error) {
 	}
 
 	return photoCount, nil
+}
+
+func (db *appdbimpl) GetPhotos(userID string) ([]Photo, error) {
+	var photo []Photo
+	rows, err := db.c.Query("SELECT * FROM photos WHERE userID = ?", userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var pixel Photo
+		rows.Scan(&pixel.PhotoID, &pixel.UserID, &pixel.Date, &pixel.Photo)
+
+		likeCount, err := db.GetLikeCount(pixel)
+		if err != nil {
+			return nil, err
+		}
+		pixel.LikesNum = likeCount
+
+		commentCount, err := db.GetCommentCount(pixel)
+		if err != nil {
+			return nil, err
+		}
+		pixel.CommentNum = commentCount
+
+		comments, err := db.GetComments(pixel)
+		if err != nil {
+			return nil, err
+		}
+		pixel.Comments = comments
+
+		photo = append(photo, pixel)
+
+	}
+
+	return photo, nil
+
 }

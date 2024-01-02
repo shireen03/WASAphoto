@@ -1,67 +1,69 @@
 <script>
+import LoadingSpinner from "../components/LoadingSpinner.vue";
 export default {
+    components: { LoadingSpinner },
 	data: function() {
 		return {
             errormsg: null,
-            deets:{
-			errormsg: null,
-            userUsername: "",
-            userID:"",
-            followerCount: 2,
-            followingCount: 3,
-            bannedCount:0,
-            photoCount:0,
+           
+            userUsername: localStorage.getItem("username"),
+            newUser: "",
+            userID: localStorage.getItem("userID"),
+            followerCount: null,
+            followingCount: null,
+            bannedCount:null,
+            photoCount:null,
             isFollow: false,
             isBan: false,
+            isLoading: true,
 
-            },
+            photos:{
+                photo:[{
+                photoID:0,
+                likeCount:0,
+                commentCount:0,
+                date:"",
+                file: "",
+                isLike:false,
+                comment: ""
+            }],
+            }
+
+        
 		}
 	},
-
-
-    created(){
+     created(){
         this.AccountInfo();
+        
     },
-
-
 
 	methods: {
 
-       
+      
+
+        mounted(){
+        this.AccountInfo()
+    },
 
 		 async AccountInfo() {
             
 			try {
+                console.log("idk");
+                this.isLoading=true;
                 this.userUsername=localStorage.getItem("username");
                 this.userID=localStorage.getItem("userID");
                 console.log(this.userUsername);
-                let response = await this.$axios.get("/username/"+ this.userUsername + "/profile");
-                console.log(response);
-                this.followerCount=response.data.followed_count;
-                console.log(this.followerCount);
-                this.followingCount=response.data.following_count;
-                console.log(this.followerCount);
-                this.photoCount=response.data.pic_numb;
-
-                /*
-                console.log("plsplspls work")
-
-                this.userUsername=this.$route.params.username;
-                console.log(this.userUsername);
-
-
-                console.log(response)
-                this.userID=localStorage.getItem("userID");
-                this.username=localStorage.getItem("username");
-
-                console.log(this.userID);
-                console.log(typeof this.userID);
-
+                await this.$axios.get("/username/"+ this.userUsername + "/profile").then((response) =>{
+                    this.followerCount=response.data.followed_count;
+                    this.followingCount=response.data.following_count;
+                    this.photoCount=response.data.pic_numb;
+                    this.bannedCount=response.data.ban_count;
                
-				this.username=response.data.username;
-                console.log(this.username);
-                
-*/
+
+                });
+                this.getPhotos();
+                console.log("plsplspls work");
+
             
 			} catch (e) {
 				this.errormsg = e.toString();
@@ -69,19 +71,27 @@ export default {
 		
     },
     async refresh() {
-			this.loading = true;
-			this.errormsg = null;
-			try {
-				let response = await this.$axios.get("/username/"+ this.userUsername + "/profile");
-				console.log(response);
-                console.log("refreshed");
-
-			} catch (e) {
-				this.errormsg = e.toString();
-			}
-			this.loading = false;
-		},
+		
+			this.AccountInfo();
+            
 	},
+
+    async updateUsername(){
+
+        if(this.newUser==""){
+            this.errormsg="you must enter a username!!!"
+
+        }else{
+            console.log(this.newUser);
+            console.log(this.userID);
+            let response=await this.$axios.put("/user/"+ this.userID + "/setusername/" + this.newUser);
+            localStorage.setItem("username", response.data);
+            console.log(response);
+            this.refresh();
+        }
+
+
+    },
 	
     async getFollow(){
         try{     
@@ -103,7 +113,7 @@ export default {
         try{     
            
                 let response=await this.$axios.post("/photo/upload/" + this.userID);
-                console.log(response);
+                console.log("uploadddddd "+response);
                 this.refresh();
         
             }
@@ -115,55 +125,80 @@ export default {
 
 
     },
-    async mounted(){
-        this.AccountInfo();
-        await this.follow;
-        await this.following;
-        this.refresh();
-        return;
+
+    async getPhotos(){
+        try{     
+           
+                let response=await this.$axios.get("/photo/upload/" + this.userID);
+                console.log(response);
+                this.photos=response.data;
+                console.log(this.photos);
+
+                for (let i=0;i<this.photos.photo.length();i++){
+                    this.photos.photo[i].file= 'data:image/*;base64,' + this.photos.photo[i].file
+
+                }
+                
+        
+            }
+       
+    
+     catch{
+            this.errormsg=e.toString();
+        }
+
+
     },
 
-    }
+
+    
+ 
+
+},
+}
 
  
 
 </script>
 <template>
-    <head>
-        <script> AccountInfo()</script>
-    </head>
+  
     
     <div class="titleButtons">
 
-    <h2> <span>{{this.userUsername}}</span> Account   </h2>
+    <h2 > <span>{{this.userUsername}}</span> Account   </h2>
 
     </div>
-   
-   
-  
-    <div class="counts">
-        <div class="followCount">
-            <h6> followers </h6>
-             <h6> <span>{{this.followerCount}}</span></h6>
-        </div>
-
-        <div class="followingCount">
-            <h6> following </h6>
-            <h6><span>{{ this.followingCount }}</span></h6>
-        </div>
-
-        <div class="photoCount">
-            <h6> photos </h6>
-            <h6><span>{{ this.photoCount }}</span></h6>
-        </div>
-    </div>
-
     <div class="upload">
     <div class="btn-group btn-group-sm">
 					<input type="file" accept="image/*" class="btn btn-xs" @change="uploadFile" ref="file">
 					<button class="btn btn-default " @click="uploadPhoto">Upload</button>
 				</div>
     </div>
+   
+    <div class="umidk">
+    <div class="btn-group">
+ 
+            <button class="btn"> followers: {{this.followerCount}} </button>
+    
+            <button class="btn"> following: {{this.followingCount}} </button>
+            <button class="btn"> bans: {{this.bannedCount}} </button>
+
+         
+   
+            <button class="btn"> photos: {{this.photoCount}} </button>
+    </div>
+    </div>
+
+    <div class="gro">
+  <input type="text" id="username" v-model="this.newUser" placeholder="Enter new username" ><br>
+  <button class="btn btn-outline-secondary" id="submit" @click="updateUsername"> submit  </button>
+  </div>
+
+
+
+
+
+
 
     
 
@@ -178,7 +213,7 @@ export default {
 
 
 .titleButtons{
-    display:-webkit-flex;
+    display:flex;
     flex-direction:row;
     align-items:normal;
     justify-content:first baseline;
@@ -186,44 +221,24 @@ export default {
     gap: 80px;
 
 }
-.upload{
-    text-align: 100px;
-    margin-left: 600px;
-}
 
 
 
 
-.counts{
-    display: flex;
-    flex-direction:row;
-    align-items:normal;
-    justify-content:baseline;
-    margin-top: 50px;
-    gap: 70px;
 
+.gro{
+    display:flex;
+    flex-direction: row;
+    align-items:flex-end;
+    justify-content:start;
 }
-.followCount{
-    display: flex;
-    flex-direction:row;
-    align-items:normal;
-    justify-content:baseline;
-    gap: 10px;
+
+.photo{
+    display:grid;
+    align-items:first baseline;
 }
-.followingCount{
-    display: flex;
-    flex-direction:row;
-    align-items:normal;
-    justify-content:baseline;
-    gap: 10px;
-}
-.photoCount{
-    display: flex;
-    flex-direction:row;
-    align-items:normal;
-    justify-content:baseline;
-    gap: 10px;
-}
+
+
 
 
 

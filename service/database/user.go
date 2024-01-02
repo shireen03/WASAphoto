@@ -93,12 +93,12 @@ func (db *appdbimpl) CheckUserExist(username string) (bool, error) {
 	}
 	return userExists, nil
 }
-func (db *appdbimpl) SetUsername(username string, user User) (User, error) {
-	_, err := db.c.Exec("UPDATE user SET username=? WHERE username=? AND userID=?", username, user.Username, user.UserID)
+func (db *appdbimpl) SetUsername(username string, user User) (string, error) {
+	_, err := db.c.Exec("UPDATE user SET username=? WHERE  userID=?", username, user.UserID)
 	if err != nil {
-		return User{}, err
+		return "", err
 	}
-	return user, nil
+	return username, nil
 }
 
 // func (db *appdbimpl) GetProfile(usr User) (Profile, error) {

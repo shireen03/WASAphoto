@@ -29,7 +29,9 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	pic.UserID = userID
 	nowtime := time.Now()
 	pic.Date = nowtime.Format("2006-01-02 15:04:05")
-	pic.Picture = photo
+	pic.Photo = photo
+	pic.CommentNum = 0
+	pic.LikesNum = 0
 
 	err = rt.db.SetPic(pic)
 	if err != nil {
@@ -65,4 +67,17 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	w.WriteHeader(http.StatusCreated)
+}
+func (rt *_router) getPhotos(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+
+	userID := ps.ByName("userID")
+
+	pics, err := rt.db.GetPhotos(userID)
+	if err != nil {
+		http.Error(w, "cant get photo list", http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	_ = json.NewEncoder(w).Encode(pics)
 }

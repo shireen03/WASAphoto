@@ -20,6 +20,7 @@ export default {
                 this.errormsg = "search cannot be empty"
             }else{
                 console.log(this.search)
+                
                 this.$router.push({path: "user/" + this.search + "/account"});
             }
         } 
@@ -38,11 +39,12 @@ export default {
 		<div class="ok">
 			<h2>Search User</h2>
 		
-		<div class="stuff">
+		<div class="gro">
         <input class="text" type="text" v-model="search" placeholder="Search User">
-        <button class="search" @click="searchUser">Search</button>
+        <button class="btn btn-outline-secondary" id="submit" @click="searchUser" > search  </button>        </div>
         </div>
-        </div>
+
+
 
 		
 </template>
@@ -73,6 +75,12 @@ export default {
   flex-direction: row;
   align-items: center;
   justify-content: center;
+}
+.gro{
+    display:flex;
+    flex-direction: row;
+    align-items:flex-end;
+    justify-content:start;
 }
 
 </style>

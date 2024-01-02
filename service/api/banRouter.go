@@ -11,13 +11,20 @@ import (
 
 func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
+
 	username := ps.ByName("username")
-
+	userID, err := rt.db.GetUserIDWithUsername(username)
+	if err != nil {
+		return
+	}
 	banUsername := ps.ByName("banUsername")
-
+	banUserID, err := rt.db.GetUserIDWithUsername(banUsername)
+	if err != nil {
+		return
+	}
 	var ban database.Ban
-	ban.Username = username
-	ban.BanUsername = banUsername
+	ban.UserID = userID
+	ban.BanUserID = banUserID
 
 	isbanned, err := rt.db.BanCheck(ban)
 	if err != nil {
@@ -31,7 +38,7 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 			return
 		}
 
-		message := "User unbanned successfully"
+		message := "User banned successfully"
 		w.Write([]byte(message))
 
 	}
@@ -39,13 +46,20 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 
 func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
+
 	username := ps.ByName("username")
-
+	userID, err := rt.db.GetUserIDWithUsername(username)
+	if err != nil {
+		return
+	}
 	banUsername := ps.ByName("banUsername")
-
+	banUserID, err := rt.db.GetUserIDWithUsername(banUsername)
+	if err != nil {
+		return
+	}
 	var ban database.Ban
-	ban.Username = username
-	ban.BanUsername = banUsername
+	ban.UserID = userID
+	ban.BanUserID = banUserID
 
 	isbanned, err := rt.db.BanCheck(ban)
 	if err != nil {
@@ -68,12 +82,18 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 func (rt *_router) isBan(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 	username := ps.ByName("username")
-
+	userID, err := rt.db.GetUserIDWithUsername(username)
+	if err != nil {
+		return
+	}
 	banUsername := ps.ByName("banUsername")
-
+	banUserID, err := rt.db.GetUserIDWithUsername(banUsername)
+	if err != nil {
+		return
+	}
 	var ban database.Ban
-	ban.Username = username
-	ban.BanUsername = banUsername
+	ban.UserID = userID
+	ban.BanUserID = banUserID
 
 	isbanned, err := rt.db.BanCheck(ban)
 	if err != nil {

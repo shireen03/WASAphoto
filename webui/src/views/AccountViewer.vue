@@ -3,27 +3,27 @@ export default {
 	data: function() {
 		return {
             errormsg: null,
-            userID: "",
+            currentUserID: "",
             currentUser: "",
-            deets:{
+            
 			errormsg: null,
             userUsername: "",
-            userID:"",
-            followerCount: 2,
-            followingCount: 3,
+            userIDUser:"",
+            followerCount: 0,
+            followingCount: 0,
             bannedCount:0,
             photoCount:0,
             isFollow: false,
             isBan: false,
+            checkban:false,
 
-            },
+          
 		}
 	},
 
 
     created(){
-        this.CheckBanFollow();
-        this.AccountInfo();
+        this.CheckBanFollow()
     },
 
 
@@ -32,9 +32,18 @@ export default {
 
         async CheckBanFollow(){
             try {
-
                 this.userUsername=this.$route.params.username;
                 this.currentUser=localStorage.getItem("username");
+                console.log("aight")
+                let checkBan = await this.$axios.get("/username/"+ this.userUsername + "/ban/" + this.currentUser);
+                console.log(checkBan);
+                this.checkban=checkBan.data;
+                if(this.checkban){
+                    this.$router.push({path: "/Error"});
+
+                    
+                }else{
+                
                 console.log(this.currentUser);
 
                 let response = await this.$axios.get("/username/"+ this.currentUser + "/follow/" + this.userUsername);
@@ -42,10 +51,10 @@ export default {
                 console.log(response.data);
                 this.isFollow=response.data;
                 if(this.isFollow){
-                    document.getElementById("follow").innerHTML = "unfollowmf";
+                    document.getElementById("follow").innerHTML = "unfollow";
                     this.AccountInfo(); 
                 }else{
-                    document.getElementById("follow").innerHTML = "followmf"; 
+                    document.getElementById("follow").innerHTML = "follow"; 
                     this.AccountInfo();
                 }
 
@@ -58,9 +67,10 @@ export default {
                 }else{
                     document.getElementById("ban").innerHTML = "ban"; 
                 }
+                this.refresh();
        
 
-
+            }
 
                 
             } catch (error) {
@@ -72,16 +82,14 @@ export default {
 		 async AccountInfo() {
             
 			try {
-                this.userUsername=this.$route.params.username;
-                console.log(this.userUsername);
-                let response = await this.$axios.get("/username/"+ this.userUsername + "/profile");
-                console.log(response);
-                this.followerCount=response.data.followed_count;
-                console.log(this.followerCount);
-                this.followingCount=response.data.following_count;
-                console.log(this.followerCount);
-                this.photoCount=response.data.pic_numb
+                console.log("wtf");
+                await this.$axios.get("/username/"+ this.userUsername + "/profile").then((response) =>{
+                    this.followerCount=response.data.followed_count;
+                    this.followingCount=response.data.following_count;
+                    this.photoCount=response.data.pic_numb;
 
+                });
+                console.log(response);
                 /*
                 console.log("plsplspls work")
 
@@ -119,11 +127,17 @@ export default {
                 this.isFollow=false;
                 document.getElementById("follow").innerHTML = "follow"; 
                  console.log(response);
+                 this.refresh();
             }else{
+                console.log("ban check:" + this.isBan);
+                if(this.isBan==false){
                 let response=await this.$axios.post("/username/" + this.currentUser + "/follow/" + this.userUsername);
                 this.isFollow=true;
                 console.log(response);
-                document.getElementById("follow").innerHTML = "unnnfollow";
+                document.getElementById("follow").innerHTML = "unfollow";
+                this.refresh();
+                }
+            
 
 
           
@@ -136,6 +150,13 @@ export default {
         }
 
 
+    },
+
+    async refresh() {
+        console.log("refreshhh");
+		
+        this.AccountInfo();
+        
     },
 
     async getBan(){
@@ -150,14 +171,25 @@ export default {
                 this.isBan=false;
                 document.getElementById("ban").innerHTML = "ban"; 
                  console.log(response);
+                 this.refresh();
             }else{
                 let response=await this.$axios.post("/username/" + this.currentUser + "/ban/" + this.userUsername);
+
                 this.isBan=true;
                 console.log(response);
                 document.getElementById("ban").innerHTML = "unban";
+                
 
+                console.log(this.isFollow);
+                if(this.isFollow){
+                    let response=await this.$axios.delete("/username/" + this.currentUser + "/follow/" + this.userUsername);
+                    let wtf=await this.$axios.delete("/username/" + this.userUsername + "/follow/" + this.currentUser);
+                    this.isFollow=false;
+                    document.getElementById("follow").innerHTML = "follow"; 
 
-          
+                    
+                }
+                this.refresh();
             
         }
        
@@ -169,51 +201,50 @@ export default {
 
     },
 
-    async mounted(){
-         this.AccountInfo;
-        await this.follow;
-        await this.following;
-        return;
-    },
     },}
 
  
 
 </script>
 <template>
+  
     
     <div class="titleButtons">
 
-    <h2> <span>{{this.userUsername}}</span> Account   </h2>
+    <h2 > <span>{{this.userUsername}}</span> Account   </h2>
 
-    <div class="buttons">
-        <button class="followers"  id="follow" @click="getFollow"> grr</button>
-        <button class="followers" @click="getBan" id="ban">baner</button>
     </div>
+    <div class="upload">
+    <div class="btn-group">
+        <button class="btn btn-outline-dark " id="follow" @click="getFollow">wtv </button>
+
+		<button class="btn btn-outline-dark " id="ban" @click="getBan">wtv</button>
+				</div>
     </div>
+    
+    <div class="btn-group">
+ 
+            <button class="btn"> followers: {{this.followerCount}} </button>
+    
+            <button class="btn"> following: {{this.followingCount}} </button>
+         
+   
+            <button class="btn"> photos: {{this.photoCount}} </button>
+    </div>
+
+
+
+    
+
   
-    <div class="counts">
-        <div class="followCount">
-            <h6> followers </h6>
-             <h6> <span>{{this.followerCount}}</span></h6>
-        </div>
-
-        <div class="followingCount">
-            <h6> following </h6>
-            <h6><span>{{ this.followingCount }}</span></h6>
-        </div>
-
-        <div class="photoCount">
-            <h6> photos </h6>
-            <h6><span>{{ this.photoCount }}</span></h6>
-        </div>
-    </div>
 
 
 	
 </template>
 
 <style>
+
+
 
 .titleButtons{
     display:-webkit-flex;
@@ -224,46 +255,20 @@ export default {
     gap: 80px;
 
 }
-.followers{
-    margin-top: 2px;
+.upload{
+    text-align: 100px;
+    margin-left: 600px;
 }
 
 
 
-.followers{
-    width: 100px;
-    height: 40px;
-}
-.counts{
-    display: flex;
-    flex-direction:row;
-    align-items:normal;
-    justify-content:baseline;
-    margin-top: 50px;
-    gap: 70px;
+
+.btn-group{
+  background-color: rgb(213, 213, 213);
+  text-align: start;
 
 }
-.followCount{
-    display: flex;
-    flex-direction:row;
-    align-items:normal;
-    justify-content:baseline;
-    gap: 10px;
-}
-.followingCount{
-    display: flex;
-    flex-direction:row;
-    align-items:normal;
-    justify-content:baseline;
-    gap: 10px;
-}
-.photoCount{
-    display: flex;
-    flex-direction:row;
-    align-items:normal;
-    justify-content:baseline;
-    gap: 10px;
-}
+
 
 
 

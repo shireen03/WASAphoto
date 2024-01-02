@@ -8,7 +8,8 @@ import (
 func (rt *_router) Handler() http.Handler {
 	// Register routes
 	rt.router.POST("/session", rt.wrap(rt.doLogin))
-	// rt.router.PUT("/user/:username/username", rt.wrap(rt.setMyUsername))
+	rt.router.PUT("/user/:userID/setusername/:username", rt.wrap(rt.setMyUsername))
+
 	rt.router.POST("/username/:username/follow/:followUsername", rt.wrap(rt.followUser))
 	rt.router.DELETE("/username/:username/follow/:followUsername", rt.wrap(rt.unfollowUser))
 
@@ -23,6 +24,8 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.GET("/profile/:username", rt.wrap(rt.getMyProfile))
 
 	rt.router.POST("/photo/upload/:userID", rt.wrap(rt.uploadPhoto))
+	rt.router.GET("/photo/upload/:userID", rt.wrap(rt.getPhotos))
+
 	// rt.router.POST("/user/:userID/photo/:photoID/remove", rt.wrap(rt.deletePhoto))
 
 	// rt.router.POST("/user/:userID/photo/:photoID/like", rt.wrap(rt.likePhoto))

@@ -8,7 +8,7 @@ export default {
 	<div v-if="loading">
 		<div style="text-align: center">
 			<div class="spinner-border" role="status">
-				<span class="visually-hidden">Loading...</span>
+				<span >Loading...</span>
 			</div>
 		</div>
 	</div>

@@ -78,7 +78,21 @@ func (rt *_router) getMyProfile(w http.ResponseWriter, r *http.Request, ps httpr
 		http.Error(w, "cant get following count", http.StatusBadRequest)
 		return
 	}
-	profile.FollowedCount = followingCount
+	profile.FollowingCount = followingCount
+
+	bancount, err := rt.db.GetBanCount(profile.UserID)
+	if err != nil {
+		http.Error(w, "cant get ban count", http.StatusBadRequest)
+		return
+	}
+	profile.BanCount = bancount
+
+	pics, err := rt.db.GetPhotos(profile.UserID)
+	if err != nil {
+		http.Error(w, "cant get photo list", http.StatusBadRequest)
+		return
+	}
+	profile.Pictures = pics
 
 	w.WriteHeader(http.StatusCreated)
 	_ = json.NewEncoder(w).Encode(profile)
@@ -92,7 +106,7 @@ func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps http
 
 	user.UserID = userID
 
-	username := ps.ByName("userID")
+	username := ps.ByName("username")
 
 	newUser, err := rt.db.SetUsername(username, user)
 	if err != nil {

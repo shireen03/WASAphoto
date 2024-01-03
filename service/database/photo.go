@@ -44,16 +44,15 @@ func (db *appdbimpl) GetPhotoCount(userID string) (int, error) {
 	return photoCount, nil
 }
 
-func (db *appdbimpl) GetPhotos(userID string) ([]Photo, error) {
+func (db *appdbimpl) GetPhotos(pixel Photo) ([]Photo, error) {
 	var photo []Photo
-	rows, err := db.c.Query("SELECT photoID, userID, date, photo FROM photos WHERE userID = ?", userID)
+	rows, err := db.c.Query("SELECT photoID, userID, date, photo FROM photos WHERE userID = ?", pixel.PhotoUserID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var pixel Photo
-		rows.Scan(&pixel.PhotoID, &pixel.UserID, &pixel.Date, &pixel.Photo)
+		rows.Scan(&pixel.PhotoID, &pixel.PhotoUserID, &pixel.Date, &pixel.Photo)
 
 		likeCount, err := db.GetLikeCount(pixel)
 		if err != nil {
@@ -80,6 +79,12 @@ func (db *appdbimpl) GetPhotos(userID string) ([]Photo, error) {
 			return nil, err
 		}
 		pixel.IsLiked = isliked
+
+		comments, err := db.GetComments(pixel)
+		if err != nil {
+			return nil, err
+		}
+		pixel.Comments = comments
 
 		photo = append(photo, pixel)
 

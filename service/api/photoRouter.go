@@ -77,12 +77,17 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 func (rt *_router) getPhotos(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	userID := ps.ByName("userID")
+	photoUserID := ps.ByName("photoUserID")
+	var photo database.Photo
+	photo.UserID = userID
+	photo.PhotoUserID = photoUserID
 
-	pics, err := rt.db.GetPhotos(userID)
+	pics, err := rt.db.GetPhotos(photo)
 	if err != nil {
 		http.Error(w, "cant get photo list", http.StatusBadRequest)
 		return
 	}
+
 
 	w.WriteHeader(http.StatusCreated)
 	_ = json.NewEncoder(w).Encode(pics)

@@ -101,42 +101,56 @@ func (db *appdbimpl) SetUsername(username string, user User) (string, error) {
 	return username, nil
 }
 
-// func (db *appdbimpl) GetProfile(usr User) (Profile, error) {
-// 	var profile Profile
-// 	var follow Follow
-// 	profile.Username = usr.Username
-// 	profile.UserID = usr.UserID
+func (db *appdbimpl) GetStream(user User) ([]Stream, error) {
+	//select photos from followed users with likes and comments count, in reverse chronological order
+	rows, err := db.c.Query("SELECT p.photoID, p.photo, p.userID, p.date FROM photos p INNER JOIN follow f ON p.userID = f.toFollowID WHERE f.userID = ? ORDER BY p.date DESC", user.UserID)
 
-// 	follow.UserID = usr.UserID
+	if err != nil {
+		return nil, err
+	}
 
-// 	profile.FollowedCount, err = db.GetFollowCount(follow)
+	defer rows.Close()
 
-// }
+	var streams []Stream
+	for rows.Next() {
+		var s Stream
+		err := rows.Scan(&s.PhotoID, &s.Photo, &s.FollowedUserID, &s.Date)
+		if err != nil {
+			return nil, err
+		}
+		followed_username, err := db.GetUsernameWithUserID(s.FollowedUserID)
+		if err != nil {
+			return nil, err
+		}
+		s.FollowedUsername = followed_username
 
-// func (db *appdbimpl) GetStream(user User) ([]Stream, error) {
-// 	//select photos from followed users with likes and comments count, in reverse chronological order
-// 	rows, err := db.c.Query("SELECT p.photoID, p.userID, p.date "+
-// 		"(SELECT COUNT(*) FROM like WHERE photoID = p.photoID) AS likeCount"+
-// 		"(SELECT COUNT(*) FROM comment WHERE photoID = p.photoID) AS commentCount"+
-// 		"FROM photos p INNER JOIN follow f ON p.userID = f.toFollowID WHERE"+
-// 		"f.userID = ? ORDER BY p.date DESC", user.UserID)
+		var pixel Photo
+		pixel.PhotoID = s.PhotoID
+		pixel.UserID = user.UserID
+		likeCount, err := db.GetLikeCount(pixel)
+		if err != nil {
+			return nil, err
+		}
+		s.LikeCount = likeCount
 
-// 	if err != nil {
-// 		return nil, err
-// 	}
+		commentCount, err := db.GetCommentCount(pixel)
+		if err != nil {
+			return nil, err
+		}
+		s.CommentCount = commentCount
+		s.UserID = user.UserID
 
-// 	defer rows.Close()
+		var like Like
+		like.PhotoID = pixel.PhotoID
+		like.UserID = pixel.UserID
+		isliked, err := db.IsLiked(like)
+		if err != nil {
+			return nil, err
+		}
+		s.IsLiked = isliked
 
-// 	var streams []Stream
-// 	for rows.Next() {
-// 		var s Stream
-// 		err := rows.Scan(&s.PhotoID, &s.FollowedUserID, &s.Date, &s.LikeCount, &s.CommentCount)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 		s.UserID = user.UserID
-// 		streams = append(streams, s)
-// 	}
+		streams = append(streams, s)
+	}
 
-// 	return streams, nil
-// }
+	return streams, nil
+}

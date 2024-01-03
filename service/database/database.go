@@ -41,15 +41,16 @@ type User struct {
 	Username string `json:"Username"`
 }
 type Photo struct {
-	PhotoID    uint64    `json:"photoID"`
-	UserID     string    `json:"userID"`
-	Username   string    `json:"username"`
-	Date       string    `json:"date"`
-	LikesNum   int       `json:"like_count"`
-	CommentNum int       `json:"comment_count"`
-	Comments   []Comment `json:"comment_list"`
-	Photo      []byte    `json:"photo"`
-	IsLiked    bool      `json:"isLiked"`
+	PhotoID     uint64    `json:"photoID"`
+	UserID      string    `json:"userID"`
+	PhotoUserID string    `json:"photoUserID"`
+	Username    string    `json:"username"`
+	Date        string    `json:"date"`
+	LikesNum    int       `json:"like_count"`
+	CommentNum  int       `json:"comment_count"`
+	Comments    []Comment `json:"comment_list"`
+	Photo       []byte    `json:"photo"`
+	IsLiked     bool      `json:"isLiked"`
 }
 
 type Comment struct {
@@ -97,12 +98,15 @@ type Streamer struct {
 
 // this one describes the details of the stream which we will add into the array of pictures in Streamer
 type Stream struct {
-	UserID         string `json:"userID"`
-	FollowedUserID uint64 `json:"followed_userID"`
-	PhotoID        uint64 `json:"photo"`
-	Date           string `json:"date"`
-	LikeCount      int    `json:"comment_count"`
-	CommentCount   int    `json:"like_count"`
+	UserID           string `json:"userID"`
+	FollowedUserID   string `json:"followed_userID"`
+	FollowedUsername string `json:"followed_username"`
+	IsLiked          bool   `json:"isLiked"`
+	PhotoID          uint64 `json:"photoID"`
+	Date             string `json:"date"`
+	LikeCount        int    `json:"like_count"`
+	CommentCount     int    `json:"comment_count"`
+	Photo            []byte `json:"photo"`
 }
 
 // AppDatabase is the high level interface for the DB
@@ -112,7 +116,7 @@ type AppDatabase interface {
 
 	SetUsername(string, User) (string, error)
 	//GetUserId(uint64) (User, error)
-	//GetStream(User) ([]Stream, error)
+	GetStream(User) ([]Stream, error)
 	CheckUserExist(string) (bool, error)
 	GetUserIDWithUsername(username string) (string, error)
 	GetUsernameWithUserID(userID string) (string, error)
@@ -125,7 +129,7 @@ type AppDatabase interface {
 	SetPic(Photo) error
 	RemovePic(Photo) error
 	GetPhotoCount(userID string) (int, error)
-	GetPhotos(userID string) ([]Photo, error)
+	GetPhotos(Photo) ([]Photo, error)
 
 	SetLike(Like) (int64, error)
 	RemoveLike(Like) error

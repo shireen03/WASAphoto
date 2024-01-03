@@ -43,20 +43,14 @@ func (db *appdbimpl) GetPhotoUsernameWithPhotoID(pic Photo) (int, error) {
 }
 func (db *appdbimpl) GetComments(pic Photo) ([]Comment, error) {
 	var comment []Comment
-	rows, err := db.c.Query("SELECT userID, photoID, comment, photoUser FROM comment WHERE photoID = ?", pic.PhotoID)
+	rows, err := db.c.Query("SELECT userID, comment FROM comment WHERE photoID = ?", pic.PhotoID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var commenter Comment
-		rows.Scan(&commenter.UserID, &commenter.PhotoID, &commenter.Comment, &commenter.PhotoUserID)
-
-		photoUsername, err := db.GetUsernameWithUserID(commenter.PhotoUserID)
-		if err != nil {
-			return nil, err
-		}
-		commenter.PhotoUsername = photoUsername
+		rows.Scan(&commenter.UserID, &commenter.Comment)
 
 		Username, err := db.GetUsernameWithUserID(commenter.UserID)
 		if err != nil {

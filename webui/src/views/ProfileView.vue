@@ -29,8 +29,8 @@ export default {
                 isLiked:true,
                 comment: "",
                 comments:[{
-                        commentID:0,
-                        commentUser: "",
+                        userID:0,
+                        username: "",
                         comment:"",
 
                     }],
@@ -55,7 +55,11 @@ export default {
         this.AccountInfo()
        
     },
-    
+
+    async popupComment() {
+    var popup = document.getElementById("popupComment");
+    popup.classList.toggle("show");
+    },
 
 		 async AccountInfo() {
             
@@ -182,7 +186,7 @@ this.getPhotos();
        
     async getPhotos(){
            
-                let response=await this.$axios.get("/photo/upload/" + this.userID);
+                let response=await this.$axios.get("/user/" + this.userID + "/photo/" + this.userID );
                 console.log(response.data);
                 this.photos=response.data;
                 console.log(this.photos);
@@ -278,7 +282,6 @@ this.getPhotos();
                     <button class="fa fa-heart" v-if="photo.isLiked==true" @click="this.unLikePhoto(photo.photoID)"> {{ photo.like_count }}</button>
                     <button class="fa fa-hearto"  v-if="photo.isLiked==false" @click="this.LikePhoto(photo.photoID)"> {{ photo.like_count }}</button>
 
-                    <button  type="button" @click="uploadComment( photo.photoID, photo.comment)">comments</button>
 
                     <br>
                     <br>
@@ -301,6 +304,7 @@ this.getPhotos();
      </div>
      
 
+     
 
 </template>
 

@@ -49,6 +49,8 @@ export default {
 
         async CheckBanFollow(){
             try {
+                this.currentUserID=localStorage.getItem("userID");
+
                 this.userUsername=this.$route.params.username;
                 this.currentUser=localStorage.getItem("username");
                 console.log("aight")
@@ -120,7 +122,7 @@ export default {
           
     async getPhotos(){
            
-           let response=await this.$axios.get("/photo/upload/" + this.userIDUser);
+           let response=await this.$axios.get("/user/" + this.currentUserID + "/photo/" + this.userIDUser);
            console.log(response.data);
            this.photos=response.data;
            console.log(this.photos);
@@ -233,36 +235,36 @@ async uploadComment(photoID,yuhcomment){
         }
 
 
-    },
+    },    async LikePhoto(photoID){
 
-    },
+    console.log("putting like")
 
-async LikePhoto(photoID){
-
-console.log("putting like")
-
-        let response=await this.$axios.post("/user/" + this.userIDUser + "/photo/" + photoID +"/like");
-       console.log(response.data);
-      this.getPhotos();
+    let response=await this.$axios.post("/user/" + this.currentUserID + "/photo/" + photoID +"/like");
+    console.log(response.data);
+    this.getPhotos();
       
        
 
-},
+    },
 
-async unLikePhoto(photoID){
+    async unLikePhoto(photoID){
 
-console.log("deleting like")
-let response=await this.$axios.delete("/user/" + this.userIDUser + "/photo/" + photoID +"/like");
-console.log(response.data);
+    console.log("deleting like")
+    let response=await this.$axios.delete("/user/" + this.currentUserID + "/photo/" + photoID +"/like");
+    console.log(response.data);
 
-this.getPhotos();
-
-
-
-},
+    this.getPhotos();
 
 
-}
+
+    },
+
+    },
+
+
+
+
+    }
 
  
 
@@ -316,9 +318,10 @@ this.getPhotos();
                 <img class="card-img-top" :src=photo.photo  alt="unavailable" >
                 <hr>
                 <div class="card-body">
+                    <h4>{{ photo.foll }}</h4>
     
-                <button class="fa fa-heart" v-if="photo.isLiked==true" @click="this.unLikePhoto(photo.photoID)"> {{ photo.like_count }}</button>
-                <button class="fa fa-hearto"  v-if="photo.isLiked==false" @click="this.LikePhoto(photo.photoID)"> {{ photo.like_count }}</button>
+                <button class="fa fa-heart"  @click="this.unLikePhoto(photo.photoID)" v-if="photo.isLiked==true"> {{ photo.like_count }}</button>
+                <button class="fa fa-hearto" @click="this.LikePhoto(photo.photoID)" v-if="photo.isLiked==false" > {{ photo.like_count }}</button>
 
                 <button  type="button" @click="uploadComment( photo.photoID, photo.comment)">comments</button>
 

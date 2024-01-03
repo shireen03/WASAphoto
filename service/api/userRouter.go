@@ -111,22 +111,23 @@ func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps http
 	json.NewEncoder(w).Encode(newUser)
 }
 
-// func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-// 	w.Header().Set("content-type", "application/json")
-// 	var user database.User
-// 	var stream database.Streamer
-// 	UserID, err := strconv.ParseUint(ps.ByName("userID"), 10, 64)
-// 	if err != nil {
-// 		http.Error(w, "Invalid userID", http.StatusBadRequest)
-// 		return
-// 	}
-// 	stream.UserID = UserID
-// 	user.UserID = UserID
+func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+	w.Header().Set("content-type", "application/json")
+	var user database.User
+	var stream database.Streamer
+	userID := ps.ByName("userID")
 
-// 	streamPics, err := rt.db.GetStream(user)
+	stream.UserID = userID
+	user.UserID = userID
 
-// 	stream.StreamedPhotos = streamPics
+	streamPics, err := rt.db.GetStream(user)
+	if err != nil {
+		http.Error(w, "Invalid stream", http.StatusBadRequest)
+		return
+	}
 
-// 	w.WriteHeader(http.StatusOK)
-// 	json.NewEncoder(w).Encode(stream)
-// }
+	stream.StreamedPhotos = streamPics
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(streamPics)
+}

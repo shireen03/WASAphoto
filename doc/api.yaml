@@ -104,6 +104,43 @@ paths:
                   error:
                     type: string
                     example: "UserID not found"
+
+  /user/{userID}/photo/{photoUserID}:
+    get:
+      tags: ["photo"]
+      summary: get list of users photos
+      description: |-
+        This endpoint allows a user to see their photos
+      security:
+        - bearerAuth: []     
+      operationId: getPhotolist
+      parameters:
+        - in: path
+          name: userID
+          required: true
+          description: |-
+           userID of the current users account
+          schema:
+            type: string
+            example: "123-123-123"
+        - in: path
+          name: photoUserID
+          required: true
+          description: |-
+           userID of the account we view their posted photos
+          schema:
+            type: string
+            example: "123-123-123"
+      
+      responses:
+        '200':
+          description: Photo uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PhotoList"
+
+
           
   /photo/upload/{userID}:
     post:
@@ -145,32 +182,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Photo"
-
-    get:
-      tags: ["photo"]
-      summary: get list of users photos
-      description: |-
-        This endpoint allows a user to see their photos
-      security:
-        - bearerAuth: []     
-      operationId: getPhotolist
-      parameters:
-        - in: path
-          name: userID
-          required: true
-          description: |-
-           userID of the account we view their posted photos
-          schema:
-            type: string
-            example: "123-123-123"
-      
-      responses:
-        '200':
-          description: Photo uploaded successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PhotoList"
 
 
                 

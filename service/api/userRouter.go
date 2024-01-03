@@ -87,13 +87,6 @@ func (rt *_router) getMyProfile(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 	profile.BanCount = bancount
 
-	pics, err := rt.db.GetPhotos(profile.UserID)
-	if err != nil {
-		http.Error(w, "cant get photo list", http.StatusBadRequest)
-		return
-	}
-	profile.Pictures = pics
-
 	w.WriteHeader(http.StatusCreated)
 	_ = json.NewEncoder(w).Encode(profile)
 }

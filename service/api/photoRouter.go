@@ -24,9 +24,15 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	if err != nil {
 		http.Error(w, "Invalid photo file", http.StatusBadRequest)
 		return
-
 	}
+
 	pic.UserID = userID
+	username, err := rt.db.GetUsernameWithUserID(pic.UserID)
+	if err != nil {
+		http.Error(w, "cant get userID with username", http.StatusBadRequest)
+		return
+	}
+	pic.Username = username
 	nowtime := time.Now()
 	pic.Date = nowtime.Format("2006-01-02 15:04:05")
 	pic.Photo = photo

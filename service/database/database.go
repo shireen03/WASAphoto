@@ -43,12 +43,13 @@ type User struct {
 type Photo struct {
 	PhotoID    uint64    `json:"photoID"`
 	UserID     string    `json:"userID"`
+	Username   string    `json:"username"`
 	Date       string    `json:"date"`
 	LikesNum   int       `json:"like_count"`
 	CommentNum int       `json:"comment_count"`
 	Comments   []Comment `json:"comment_list"`
 	Photo      []byte    `json:"photo"`
-	Pictures   []Photo   `json:"pic"`
+	IsLiked    bool      `json:"isLiked"`
 }
 
 type Comment struct {
@@ -58,11 +59,11 @@ type Comment struct {
 	PhotoUsername string `json:"photoUsername"`
 	PhotoUserID   string `json:"photoUserID"`
 	PhotoID       uint64 `json:"photoID"`
-	Text          string `json:"text"`
+	Comment       string `json:"comment"`
 }
 
 type Like struct {
-	LikeId  uint64 `json:"likeID"`
+	LikeID  uint64 `json:"likeID"`
 	UserID  string `json:"userID"`
 	PhotoID uint64 `json:"photoID"`
 }
@@ -126,12 +127,12 @@ type AppDatabase interface {
 	GetPhotoCount(userID string) (int, error)
 	GetPhotos(userID string) ([]Photo, error)
 
-	SetLike(Like) error
+	SetLike(Like) (int64, error)
 	RemoveLike(Like) error
 	GetLikeCount(pic Photo) (int, error)
 	IsLiked(like Like) (bool, error)
 
-	SetComment(Comment) error
+	SetComment(Comment) (Comment, error)
 	RemoveComment(Comment) error
 	//GetCommentList(uint64)([]Comment,error)
 	GetCommentCount(Photo) (int, error)
@@ -187,9 +188,11 @@ func New(db *sql.DB) (AppDatabase, error) {
 		photoDB := `CREATE TABLE photos (
 			photoID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 			userID TEXT NOT NULL,
+			username TEXT NOT NULL,
 			date	TEXT NOT NULL,
 			photo	BLOB,
-			FOREIGN KEY (userID) REFERENCES user(userID)
+			FOREIGN KEY (userID) REFERENCES user(userID),
+			FOREIGN KEY (username) REFERENCES user(username)
 			);`
 
 		_, err = db.Exec(photoDB)
@@ -222,9 +225,9 @@ func New(db *sql.DB) (AppDatabase, error) {
 		commentDB := `CREATE TABLE comment (
 			commentID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 			userID TEXT NOT NULL,
+			username TEXT NOT NULL,
 			photoID TEXT NOT NULL,
 			comment	TEXT NOT NULL,
-			photoUser TEXT NOT NULL,
 			FOREIGN KEY (userID) REFERENCES user(userID),
 			FOREIGN KEY (photoID) REFERENCES photos(photoID)
 			);`

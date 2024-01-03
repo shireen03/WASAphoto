@@ -1,15 +1,20 @@
 package database
 
-func (db *appdbimpl) SetLike(like Like) error {
-	_, err := db.c.Exec("INSERT INTO like (likeID, userID, photoID) VALUES (?, ?, ?, ?)", like.LikeId, like.UserID, like.PhotoID)
+func (db *appdbimpl) SetLike(like Like) (int64, error) {
+	liker, err := db.c.Exec("INSERT INTO like (userID, photoID) VALUES (?, ?)", like.UserID, like.PhotoID)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+
+	likeID, err := liker.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return likeID, nil
 }
 
 func (db *appdbimpl) RemoveLike(like Like) error {
-	_, err := db.c.Exec("DELETE FROM like WHERE likeID=?", like.LikeId)
+	_, err := db.c.Exec("DELETE FROM like WHERE userID=? AND photoID=?", like.UserID, like.PhotoID)
 	if err != nil {
 		return err
 	}

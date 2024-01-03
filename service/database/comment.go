@@ -1,11 +1,11 @@
 package database
 
-func (db *appdbimpl) SetComment(c Comment) error {
-	_, err := db.c.Exec("INSERT INTO comment (commentID, comment, userID, photoID) VALUES (?, ?, ?, ?)", c.CommentID, c.Text, c.UserID, c.PhotoID)
+func (db *appdbimpl) SetComment(c Comment) (Comment, error) {
+	_, err := db.c.Exec("INSERT INTO comment (userID, username, photoID, comment) VALUES (?, ?, ?, ?)", c.UserID, c.Username, c.PhotoID, c.Comment)
 	if err != nil {
-		return err
+		return Comment{}, err
 	}
-	return nil
+	return c, nil
 }
 
 func (db *appdbimpl) RemoveComment(c Comment) error {
@@ -33,6 +33,14 @@ func (db *appdbimpl) GetCommentCount(pic Photo) (int, error) {
 	return countNumb, nil
 }
 
+func (db *appdbimpl) GetPhotoUsernameWithPhotoID(pic Photo) (int, error) {
+	var countNumb int
+	err := db.c.QueryRow("SELECT username FROM comment WHERE photoID=?", pic.PhotoID).Scan(&countNumb)
+	if err != nil {
+		return 0, err
+	}
+	return countNumb, nil
+}
 func (db *appdbimpl) GetComments(pic Photo) ([]Comment, error) {
 	var comment []Comment
 	rows, err := db.c.Query("SELECT userID, photoID, comment, photoUser FROM comment WHERE photoID = ?", pic.PhotoID)
@@ -42,7 +50,7 @@ func (db *appdbimpl) GetComments(pic Photo) ([]Comment, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var commenter Comment
-		rows.Scan(&commenter.UserID, &commenter.PhotoID, &commenter.Text, &commenter.PhotoUserID)
+		rows.Scan(&commenter.UserID, &commenter.PhotoID, &commenter.Comment, &commenter.PhotoUserID)
 
 		photoUsername, err := db.GetUsernameWithUserID(commenter.PhotoUserID)
 		if err != nil {

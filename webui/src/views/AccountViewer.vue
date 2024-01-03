@@ -16,6 +16,23 @@ export default {
             isFollow: false,
             isBan: false,
             checkban:false,
+            photos:[{
+                photoID:0,
+                username:"",
+                like_count:0,
+                comment_count:0,
+                date:"",
+                photo: "",
+                isLike:false,
+                comment: "",
+                comments:[{
+                        commentID:0,
+                        commentUser: "",
+                        comment:"",
+
+                    }],
+                }
+            ],
 
           
 		}
@@ -83,38 +100,55 @@ export default {
             
 			try {
                 console.log("wtf");
-                await this.$axios.get("/username/"+ this.userUsername + "/profile").then((response) =>{
+                let response=await this.$axios.get("/username/"+ this.userUsername + "/profile");
+                    this.userIDUser=response.data.userID;
+
                     this.followerCount=response.data.followed_count;
                     this.followingCount=response.data.following_count;
                     this.photoCount=response.data.pic_numb;
 
-                });
-                console.log(response);
-                /*
-                console.log("plsplspls work")
-
-                this.userUsername=this.$route.params.username;
-                console.log(this.userUsername);
-
-
-                console.log(response)
-                this.userID=localStorage.getItem("userID");
-                this.username=localStorage.getItem("username");
-
-                console.log(this.userID);
-                console.log(typeof this.userID);
-
                
-				this.username=response.data.username;
-                console.log(this.username);
-                
-*/
+                console.log(response.data);
+                console.log("brovski "+ this.userIDUser);
+               this.getPhotos();
             
 			} catch (e) {
 				this.errormsg = e.toString();
 			}
 		
     },
+          
+    async getPhotos(){
+           
+           let response=await this.$axios.get("/photo/upload/" + this.userIDUser);
+           console.log(response.data);
+           this.photos=response.data;
+           console.log(this.photos);
+           console.log(this.photos[0].photo)
+           console.log(this.photos.length);
+           for (let i=0;i<this.photos.length;i++){
+               
+               this.photos[i].photo= 'data:image/png;base64,'+ this.photos[i].photo;
+               console.log("omg   "+this.photos[i].photo);
+               console.log("slay   "+this.photos[i].photoID);
+               console.log("slay   "+this.photos[i].likeCount);
+                 
+           }
+           
+   
+},
+
+async uploadComment(photoID,yuhcomment){
+   console.log(yuhcomment);
+      
+      let response=await this.$axios.post("/user/" + this.userID + "/photo/" + photoID +"/comment", { comment: yuhcomment });
+      console.log(response.data);
+     
+      
+
+},
+
+
     async getFollow(){
         try{     
            
@@ -201,26 +235,57 @@ export default {
 
     },
 
-    },}
+    },
+
+async LikePhoto(photoID){
+
+console.log("putting like")
+
+        let response=await this.$axios.post("/user/" + this.userIDUser + "/photo/" + photoID +"/like");
+       console.log(response.data);
+      this.getPhotos();
+      
+       
+
+},
+
+async unLikePhoto(photoID){
+
+console.log("deleting like")
+let response=await this.$axios.delete("/user/" + this.userIDUser + "/photo/" + photoID +"/like");
+console.log(response.data);
+
+this.getPhotos();
+
+
+
+},
+
+
+}
 
  
 
 </script>
-<template>
-  
+<template>  
+
+<head><meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></head>
+
+
+
     
     <div class="titleButtons">
 
     <h2 > <span>{{this.userUsername}}</span> Account   </h2>
 
     </div>
-    <div class="upload">
+
     <div class="btn-group">
         <button class="btn btn-outline-dark " id="follow" @click="getFollow">wtv </button>
 
 		<button class="btn btn-outline-dark " id="ban" @click="getBan">wtv</button>
-				</div>
-    </div>
+	</div>
     
     <div class="btn-group">
  
@@ -233,12 +298,50 @@ export default {
     </div>
 
 
+    <br>
 
+    <br>
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+</head>
+
+<div class="container">
+    <div class="card-columns">
+        <div v-for="photo in this.photos" style="width=300px">
+            <div class="card">
+                <img class="card-img-top" :src=photo.photo  alt="unavailable" >
+                <hr>
+                <div class="card-body">
     
+                <button class="fa fa-heart" v-if="photo.isLiked==true" @click="this.unLikePhoto(photo.photoID)"> {{ photo.like_count }}</button>
+                <button class="fa fa-hearto"  v-if="photo.isLiked==false" @click="this.LikePhoto(photo.photoID)"> {{ photo.like_count }}</button>
 
-  
+                <button  type="button" @click="uploadComment( photo.photoID, photo.comment)">comments</button>
 
+                <br>
+                <br>
+                <p > likes: {{ photo.like_count }}<br>
+                comments: {{ photo.comment_count }}<br>
+                 date: {{ photo.date }}</p>
 
+                <div class="gro">
+                <input type="text" id="comment" v-model="photo.comment" class="form-control" placeholder="input comment">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-dark" type="button" @click="uploadComment(photo.photoID, photo.comment)">post</button>
+                    </div>
+                </div>
+                </div>
+            
+            </div>
+
+        </div>
+    </div>
+ </div>
+ 
 	
 </template>
 
@@ -255,12 +358,6 @@ export default {
     gap: 80px;
 
 }
-.upload{
-    text-align: 100px;
-    margin-left: 600px;
-}
-
-
 
 
 .btn-group{
@@ -268,6 +365,56 @@ export default {
   text-align: start;
 
 }
+
+.row{
+
+    margin-top: 37px;
+}
+
+.card{
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+    width: 100px;
+    height:800px;
+    
+
+}
+
+
+.container {
+  margin-top: 10px;
+  margin-right: 50px;
+}
+
+
+.gro{
+    display:flex;
+    flex-direction: row;
+    align-items:flex-end;
+    justify-content:start;
+}
+
+.fa-hearto {
+  color: rgb(255, 255, 255);
+  background-color: grey;
+  cursor: pointer;
+  height: 27px;
+}
+.fa-heart {
+  color: grey;
+  cursor: pointer;
+  background-color: black;
+
+  height: 27px;
+}
+
+
+
+
+
+
+
+
+
 
 
 

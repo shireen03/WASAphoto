@@ -25,23 +25,36 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	userID := ps.ByName("userID")
 
 	var comment database.Comment
-	err = json.NewDecoder(r.Body).Decode(&comment)
 	if err != nil {
 		http.Error(w, "Error decoding request body", http.StatusBadRequest)
 		return
 	}
+	err = json.NewDecoder(r.Body).Decode(&comment)
+	if err != nil {
+		http.Error(w, "Error decoding", http.StatusInternalServerError)
+		return
+	}
 
 	comment.UserID = userID
+
 	comment.PhotoID = photoID
 
-	err = rt.db.SetComment(comment)
+	username, err := rt.db.GetUsernameWithUserID(comment.UserID)
+	if err != nil {
+		http.Error(w, "cant get userID with username", http.StatusBadRequest)
+		return
+	}
+	comment.Username = username
+
+	commenter, err := rt.db.SetComment(comment)
 	if err != nil {
 		http.Error(w, "Error saving comment", http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(comment) //send back the comment as confirmation
+	_ = json.NewEncoder(w).Encode(commenter)
+
 }
 
 func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {

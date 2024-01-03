@@ -61,33 +61,48 @@ export default {
 			}
 			this.loading = false;
 		},
+	async popupComment() {
+        var modal = document.getElementById("commentModal");
+   
+        modal.style.display = "block";
 
-		async LikePhoto(photoID){
 
-console.log("putting like")
+    },
+    async closeModal() {
+        var modal = document.getElementById("commentModal");
+
+        modal.style.display = "none";
+    },
+
+	async LikePhoto(photoID){
+
+		console.log("putting like")
 
         let response=await this.$axios.post("/user/" + this.userID + "/photo/" + photoID +"/like");
     console.log(response.data);
     this.getStream();
-    
-    
+	},
 
-},
-async unLikePhoto(photoID){
+	async unLikePhoto(photoID){
 
-console.log("deleting like")
-let response=await this.$axios.delete("/user/" + this.userID + "/photo/" + photoID +"/like");
-console.log(response.data);
+	console.log("deleting like")
+	let response=await this.$axios.delete("/user/" + this.userID + "/photo/" + photoID +"/like");
+	console.log(response.data);
 
-this.getStream();
+	this.getStream();
+	},
+
+	async uploadComment(photoID,yuhcomment){
+        console.log(yuhcomment);
+           
+           let response=await this.$axios.post("/user/" + this.userID + "/photo/" + photoID +"/comment", { comment: yuhcomment });
+           console.log(response.data);
+           this.getStream();
+	},
 
 
 
-},
-
-
-
-		async refresh() {
+	async refresh() {
 			this.loading = true;
 			this.errormsg = null;
 			try {
@@ -97,8 +112,9 @@ this.getStream();
 				this.errormsg = e.toString();
 			}
 			this.loading = false;
-		},
 	},
+	
+},
 	
 }
 </script>
@@ -154,7 +170,18 @@ this.getStream();
 				<button class="fa fa-heart-o" v-if="photo.isLiked==true" @click="this.unLikePhoto(photo.photoID)" :color="red"> {{ photo.like_count }}</button>
 				<button class="fa fa-heart-o"  v-if="photo.isLiked==false" @click="this.LikePhoto(photo.photoID)" :color="green"> {{ photo.like_count }}</button>
 
-				<button  type="button" @click="uploadComment( photo.photoID, photo.comment)">comments</button>
+
+				<div id="commentModal" class="modal">
+
+				<div class="modal-content">
+				<span @click="closeModal" class="close">&times;</span>
+				<div v-for="comment in photo.comment_list" :key="photo.photoID">
+				<p> <b>{{ comment.username }} :</b> {{ comment.comment }} </p>
+				</div>
+				</div>
+				</div>
+
+				<button  type="button" @click="popupComment">comments</button>
 
 				<br>
 				<br>

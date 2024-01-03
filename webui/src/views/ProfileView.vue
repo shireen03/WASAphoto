@@ -1,7 +1,6 @@
 <script>
 import LoadingSpinner from "../components/LoadingSpinner.vue";
 export default {
-    components: { LoadingSpinner },
 	data: function() {
 		return {
             errormsg: null,
@@ -11,6 +10,9 @@ export default {
             userID: localStorage.getItem("userID"),
             followerCount: null,
             followingCount: null,
+            followers:[],
+            following:[],
+            bans:[],
             bannedCount:null,
             photoCount:null,
             isFollow: false,
@@ -57,8 +59,22 @@ export default {
     },
 
     async popupComment() {
-    var popup = document.getElementById("popupComment");
-    popup.classList.toggle("show");
+        var modal = document.getElementById("commentModal");
+   
+        modal.style.display = "block";
+
+
+    },
+    async closeModal() {
+        var modal = document.getElementById("commentModal");
+        var followmodal = document.getElementById("followerModal");
+        var followingmodal = document.getElementById("followingModal");
+        var banModal = document.getElementById("banModal");
+
+        followmodal.style.display = "none";
+        followingmodal.style.display = "none";
+        banModal.style.display = "none";
+        modal.style.display = "none";
     },
 
 		 async AccountInfo() {
@@ -69,14 +85,17 @@ export default {
                 this.userUsername=localStorage.getItem("username");
                 this.userID=localStorage.getItem("userID");
                 console.log(this.userUsername);
-                await this.$axios.get("/username/"+ this.userUsername + "/profile").then((response) =>{
+                let response=await this.$axios.get("/username/"+ this.userUsername + "/profile")
                     this.followerCount=response.data.followed_count;
                     this.followingCount=response.data.following_count;
                     this.photoCount=response.data.pic_numb;
                     this.bannedCount=response.data.ban_count;
+                    this.bans=response.data.bans;
+
+                console.log("bannn: " + this.bans);
+                
                
 
-                });
                 if(this.photoCount>0){
                     this.getPhotos();
                 };
@@ -115,8 +134,6 @@ console.log(response.data);
 
 this.getPhotos();
 
-
-
 },
 
 
@@ -137,43 +154,16 @@ this.getPhotos();
 
     },
 	
-    async getFollow(){
+    async getFollower(){
         try{     
            
-            
-          
-            
+            let response=await this.$axios.get("/user/"+ this.userID + "/followers");
+            console.log("followers: " +response.data );
+            this.followers=response.data;
+            console.log(this.followers);
+            var modal = document.getElementById("followerModal");
+            modal.style.display = "block"; 
         }
-       
-    
-     catch{
-            this.errormsg=e.toString();
-        }
-
-
-    },
-
-    async uploadPhoto(){
-        try{     
-            console.log("hahaha")
-                // let pic=document.getElementById("inputImage").files[0];
-                // console.log(pic);
-                // const read= new FileReader();
-
-                // read.readAsDataURL(pic);
-                // console.log("sheesh")
-
-                const uploadpic=this.$refs.pico.files[0];
-                // read.onload= async () =>{};
-                let response= await this.$axios.post("/photo/upload/" + this.userID, uploadpic);
-
-
-                this.AccountInfo();
-                
-                
-                this.refresh();
-        
-            }
        
     
      catch(e){
@@ -181,6 +171,48 @@ this.getPhotos();
         }
 
 
+    },
+    async getFollowing(){
+        try{     
+           
+            let response=await this.$axios.get("/user/"+ this.userID + "/followings");
+            console.log("followings: " +response.data );
+            this.following=response.data;
+            console.log(this.following);
+            var modal = document.getElementById("followingModal");
+            modal.style.display = "block";
+        }
+     catch(e){
+            this.errormsg=e.toString();
+        }
+    },
+    async getBans(){
+        try{    
+            var modal = document.getElementById("banModal");
+            modal.style.display = "block";
+        }
+     catch(e){
+            this.errormsg=e.toString();
+        }
+    },
+
+    async uploadPhoto(){
+        try{     
+            console.log("hahaha")
+                const uploadpic=this.$refs.pico.files[0];
+                // read.onload= async () =>{};
+                let response= await this.$axios.post("/photo/upload/" + this.userID, uploadpic);
+                this.AccountInfo();
+                this.refresh();
+            }
+     catch(e){
+            this.errormsg=e.toString();
+        }
+    },
+    async deletePhoto(photoID) {
+        let response= await this.$axios.delete("/user/" + this.userID + "/photo/" + photoID +"/remove");
+        this.getPhotos();
+       
     },
 
        
@@ -209,9 +241,8 @@ this.getPhotos();
            
            let response=await this.$axios.post("/user/" + this.userID + "/photo/" + photoID +"/comment", { comment: yuhcomment });
            console.log(response.data);
-          
-           
-   
+           this.AccountInfo();
+           this.getPhotos();
 },
 
 
@@ -246,16 +277,57 @@ this.getPhotos();
     <div class="umidk">
     <div class="btn-group">
  
-            <button class="btn"> followers: {{this.followerCount}} </button>
+            <button class="btn" @click="getFollower"> followers: {{this.followerCount}} </button>
     
-            <button class="btn"> following: {{this.followingCount}} </button>
-            <button class="btn"> bans: {{this.bannedCount}} </button>
+            <button class="btn" @click="getFollowing"> following: {{this.followingCount}} </button>
+            <button class="btn" @click="getBans"> bans: {{this.bannedCount}} </button>
 
          
    
             <button class="btn"> photos: {{this.photoCount}} </button>
     </div>
     </div>
+
+    <div id="followerModal" class="modal">
+
+
+<div class="modal-content">
+<span @click="closeModal" class="close">&times;</span>
+<div v-for="follow in this.followers" >
+<p> {{ follow }}  </p>
+
+
+</div>
+</div>
+</div>
+
+<div id="followingModal" class="modal">
+
+
+<div class="modal-content">
+<span @click="closeModal" class="close">&times;</span>
+<div v-for="follow in this.following" >
+<p> {{ follow }}  </p>
+
+
+</div>
+</div>
+</div>
+
+<div id="banModal" class="modal">
+
+
+<div class="modal-content">
+<span @click="closeModal" class="close">&times;</span>
+<div v-for="ban in this.bans" >
+<p> {{ ban }}  </p>
+
+
+</div>
+</div>
+</div>
+
+
 
     <div class="gro">
     <input type="text" id="username" v-model="this.newUser" placeholder="Enter new username" ><br>
@@ -278,10 +350,28 @@ this.getPhotos();
                     <img class="card-img-top" :src=photo.photo  alt="unavailable" >
                     <hr>
                     <div class="card-body">
-        
-                    <button class="fa fa-heart" v-if="photo.isLiked==true" @click="this.unLikePhoto(photo.photoID)"> {{ photo.like_count }}</button>
-                    <button class="fa fa-hearto"  v-if="photo.isLiked==false" @click="this.LikePhoto(photo.photoID)"> {{ photo.like_count }}</button>
+                        <button type="button" class="btn btn-danger" style="float: right;" @click="deletePhoto(photo.photoID)">Delete</button>
 
+                    <button class="fa fa-heart-o" v-if="photo.isLiked==true" @click="this.unLikePhoto(photo.photoID)"> {{ photo.like_count }}</button>
+                    <button class="fa fa-heart-o"  v-if="photo.isLiked==false" @click="this.LikePhoto(photo.photoID)"> {{ photo.like_count }}</button>
+                    <button  @click="popupComment"> comments</button>
+
+
+
+                    <div id="commentModal" class="modal">
+
+                    <!-- Modal content -->
+                    <div class="modal-content">
+                    <span @click="closeModal" class="close">&times;</span>
+                    <div v-for="comment in photo.comment_list" :key="photo.photoID">
+                    <p> <b>{{ comment.username }} :</b> {{ comment.comment }} </p>
+                    
+
+                    </div>
+                    </div>
+                </div>
+
+                    </div>
 
                     <br>
                     <br>
@@ -294,23 +384,25 @@ this.getPhotos();
                         <div class="input-group-append">
                             <button class="btn btn-outline-dark" type="button" @click="uploadComment(photo.photoID, photo.comment)">post</button>
                         </div>
-                    </div>
+                    </div><br>
                     </div>
                 
                 </div>
 
             </div>
         </div>
-     </div>
-     
-
-     
-
 </template>
 
 
 <style>
 
+.modal{
+
+    max-height: 100vh;
+    background-color: rgb(179, 226, 226);
+    position: absolute;
+
+}
 
 .fa-hearto {
   color: red;
@@ -325,9 +417,6 @@ this.getPhotos();
   height: 27px;
 }
 
-
-
-
 .commenter{
     display:flex;
     flex-direction: row;
@@ -339,9 +428,7 @@ this.getPhotos();
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
     width: 100px;
     height:800px;
-    border-color: blue;
-    
-
+    border-color: blue;  
 }
 
 
@@ -360,21 +447,11 @@ this.getPhotos();
   margin-right: 50px;
 }
 
-
-
-
-
-
 .gro{
     display:flex;
     flex-direction: row;
     align-items:flex-end;
     justify-content:start;
 }
-
-
-
-
-
 
 </style>

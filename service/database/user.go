@@ -149,6 +149,12 @@ func (db *appdbimpl) GetStream(user User) ([]Stream, error) {
 		}
 		s.IsLiked = isliked
 
+		comments, err := db.GetComments(pixel)
+		if err != nil {
+			return nil, err
+		}
+		s.Comments = comments
+
 		streams = append(streams, s)
 	}
 

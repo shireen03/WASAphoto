@@ -81,8 +81,6 @@ func (rt *_router) getFollowers(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	message := "User followers retrieved"
-	w.Write([]byte(message))
 	w.WriteHeader(http.StatusCreated)
 	_ = json.NewEncoder(w).Encode(followers)
 
@@ -97,8 +95,6 @@ func (rt *_router) getFollowings(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	message := "User followings retrieved"
-	w.Write([]byte(message))
 	w.WriteHeader(http.StatusCreated)
 	_ = json.NewEncoder(w).Encode(followers)
 

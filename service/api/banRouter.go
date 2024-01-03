@@ -105,3 +105,4 @@ func (rt *_router) isBan(w http.ResponseWriter, r *http.Request, ps httprouter.P
 	_ = json.NewEncoder(w).Encode(isbanned)
 
 }
+

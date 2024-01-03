@@ -35,3 +35,23 @@ func (db *appdbimpl) GetBanCount(userID string) (int, error) {
 
 	return banCount, nil
 }
+func (db *appdbimpl) GetBans(userID string) ([]string, error) {
+	var bans []string
+	rows, err := db.c.Query("SELECT banUserID FROM ban WHERE userID= ?", userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var banUserID string
+		rows.Scan(&banUserID)
+		username, err := db.GetUsernameWithUserID(banUserID)
+		if err != nil {
+			return nil, err
+		}
+
+		bans = append(bans, username)
+	}
+
+	return bans, nil
+}

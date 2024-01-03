@@ -119,6 +119,18 @@ export default {
 			}
 		
     },
+	async popupComment() {
+        var modal = document.getElementById("commentModal");
+   
+        modal.style.display = "block";
+
+
+    },
+    async closeModal() {
+        var modal = document.getElementById("commentModal");
+
+        modal.style.display = "none";
+    },
           
     async getPhotos(){
            
@@ -145,6 +157,8 @@ async uploadComment(photoID,yuhcomment){
       
       let response=await this.$axios.post("/user/" + this.userID + "/photo/" + photoID +"/comment", { comment: yuhcomment });
       console.log(response.data);
+      this.AccountInfo();
+      this.getPhotos();
      
       
 
@@ -320,10 +334,24 @@ async uploadComment(photoID,yuhcomment){
                 <div class="card-body">
                     <h4>{{ photo.foll }}</h4>
     
-                <button class="fa fa-heart"  @click="this.unLikePhoto(photo.photoID)" v-if="photo.isLiked==true"> {{ photo.like_count }}</button>
-                <button class="fa fa-hearto" @click="this.LikePhoto(photo.photoID)" v-if="photo.isLiked==false" > {{ photo.like_count }}</button>
+                <button class="fa fa-heart-o"  @click="this.unLikePhoto(photo.photoID)" v-if="photo.isLiked==true"> {{ photo.like_count }}</button>
+                <button class="fa fa-heart-o" @click="this.LikePhoto(photo.photoID)" v-if="photo.isLiked==false" > {{ photo.like_count }}</button>
 
-                <button  type="button" @click="uploadComment( photo.photoID, photo.comment)">comments</button>
+                <div id="commentModal" class="modal">
+
+                <div class="modal-content">
+                <span @click="closeModal" class="close">&times;</span>
+                <div v-for="comment in photo.comment_list" :key="photo.photoID">
+                <p> <b>{{ comment.username }} :</b> {{ comment.comment }} </p>
+
+
+                </div>
+                </div>
+                </div>
+
+
+
+                <button  type="button" @click="popupComment">comments</button>
 
                 <br>
                 <br>
@@ -337,6 +365,8 @@ async uploadComment(photoID,yuhcomment){
                         <button class="btn btn-outline-dark" type="button" @click="uploadComment(photo.photoID, photo.comment)">post</button>
                     </div>
                 </div>
+
+
                 </div>
             
             </div>

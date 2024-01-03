@@ -50,13 +50,18 @@ func (db *appdbimpl) IsFollowing(follow Follow) (bool, error) {
 
 func (db *appdbimpl) GetFollowers(userID string) ([]string, error) {
 	var followers []string
-	rows, err := db.c.Query("SELECT usr.username FROM user u INNER JOIN follow f WHERE f.toFollowID = ?", userID)
+	rows, err := db.c.Query("SELECT userID FROM follow WHERE toFollowID = ?", userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var username string
+		var followerUserID string
+		rows.Scan(&followerUserID)
+		username, err := db.GetUsernameWithUserID(followerUserID)
+		if err != nil {
+			return nil, err
+		}
 		followers = append(followers, username)
 	}
 
@@ -64,16 +69,22 @@ func (db *appdbimpl) GetFollowers(userID string) ([]string, error) {
 }
 
 func (db *appdbimpl) GetFollowings(userID string) ([]string, error) {
-	var followers []string
-	rows, err := db.c.Query("SELECT usr.username FROM user u INNER JOIN follow f WHERE f.userID = ?", userID)
+	var following []string
+	rows, err := db.c.Query("SELECT toFollowID FROM follow WHERE userID= ?", userID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var username string
-		followers = append(followers, username)
+		var followingUserID string
+		rows.Scan(&followingUserID)
+		username, err := db.GetUsernameWithUserID(followingUserID)
+		if err != nil {
+			return nil, err
+		}
+
+		following = append(following, username)
 	}
 
-	return followers, nil
+	return following, nil
 }

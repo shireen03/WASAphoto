@@ -88,7 +88,6 @@ func (rt *_router) getPhotos(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
-
 	w.WriteHeader(http.StatusCreated)
 	_ = json.NewEncoder(w).Encode(pics)
 }

@@ -81,13 +81,14 @@ type Ban struct {
 	BanUserID string `json:"ban_id"`
 }
 type Profile struct {
-	UserID         string  `json:"userID"`
-	Username       string  `json:"username"`
-	Pictures       []Photo `json:"pic"`
-	PicNumb        int     `json:"pic_numb"`
-	FollowingCount int     `json:"following_count"`
-	FollowedCount  int     `json:"followed_count"`
-	BanCount       int     `json:"ban_count"`
+	UserID         string   `json:"userID"`
+	Username       string   `json:"username"`
+	Pictures       []Photo  `json:"pic"`
+	PicNumb        int      `json:"pic_numb"`
+	FollowingCount int      `json:"following_count"`
+	FollowedCount  int      `json:"followed_count"`
+	BanCount       int      `json:"ban_count"`
+	Bans           []string `json:"bans"`
 }
 
 // this one is to get the array of pictures from users you follow
@@ -98,15 +99,16 @@ type Streamer struct {
 
 // this one describes the details of the stream which we will add into the array of pictures in Streamer
 type Stream struct {
-	UserID           string `json:"userID"`
-	FollowedUserID   string `json:"followed_userID"`
-	FollowedUsername string `json:"followed_username"`
-	IsLiked          bool   `json:"isLiked"`
-	PhotoID          uint64 `json:"photoID"`
-	Date             string `json:"date"`
-	LikeCount        int    `json:"like_count"`
-	CommentCount     int    `json:"comment_count"`
-	Photo            []byte `json:"photo"`
+	UserID           string    `json:"userID"`
+	FollowedUserID   string    `json:"followed_userID"`
+	FollowedUsername string    `json:"followed_username"`
+	IsLiked          bool      `json:"isLiked"`
+	PhotoID          uint64    `json:"photoID"`
+	Date             string    `json:"date"`
+	LikeCount        int       `json:"like_count"`
+	CommentCount     int       `json:"comment_count"`
+	Photo            []byte    `json:"photo"`
+	Comments         []Comment `json:"comment_list"`
 }
 
 // AppDatabase is the high level interface for the DB
@@ -125,6 +127,7 @@ type AppDatabase interface {
 	SetUnBan(Ban) error
 	BanCheck(ppl1 Ban) (bool, error)
 	GetBanCount(userID string) (int, error)
+	GetBans(userID string) ([]string, error)
 
 	SetPic(Photo) error
 	RemovePic(Photo) error

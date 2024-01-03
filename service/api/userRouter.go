@@ -87,6 +87,13 @@ func (rt *_router) getMyProfile(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 	profile.BanCount = bancount
 
+	bans, err := rt.db.GetBans(profile.UserID)
+	if err != nil {
+		http.Error(w, "cant get ban count", http.StatusBadRequest)
+		return
+	}
+	profile.Bans = bans
+
 	w.WriteHeader(http.StatusCreated)
 	_ = json.NewEncoder(w).Encode(profile)
 }

@@ -144,7 +144,7 @@ type AppDatabase interface {
 	//GetCommentList(uint64)([]Comment,error)
 	GetCommentCount(Photo) (int, error)
 	RemoveBanComment(ban Ban) error
-	GetComments(pic Photo) ([]Comment, error)
+	GetComments(pic uint64) ([]Comment, error)
 
 	SetFollow(Follow) error
 	RemoveFollow(Follow) error

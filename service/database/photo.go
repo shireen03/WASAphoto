@@ -66,11 +66,6 @@ func (db *appdbimpl) GetPhotos(pixel Photo) ([]Photo, error) {
 		}
 		pixel.CommentNum = commentCount
 
-		// comments, err := db.GetComments(pixel)
-		// if err != nil {
-		// 	return nil, err
-		// }
-		// pixel.Comments = comments
 		var like Like
 		like.PhotoID = pixel.PhotoID
 		like.UserID = pixel.UserID
@@ -80,7 +75,7 @@ func (db *appdbimpl) GetPhotos(pixel Photo) ([]Photo, error) {
 		}
 		pixel.IsLiked = isliked
 
-		comments, err := db.GetComments(pixel)
+		comments, err := db.GetComments(pixel.PhotoID)
 		if err != nil {
 			return nil, err
 		}

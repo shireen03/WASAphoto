@@ -41,9 +41,9 @@ func (db *appdbimpl) GetPhotoUsernameWithPhotoID(pic Photo) (int, error) {
 	}
 	return countNumb, nil
 }
-func (db *appdbimpl) GetComments(pic Photo) ([]Comment, error) {
+func (db *appdbimpl) GetComments(pic uint64) ([]Comment, error) {
 	var comment []Comment
-	rows, err := db.c.Query("SELECT userID, comment FROM comment WHERE photoID = ?", pic.PhotoID)
+	rows, err := db.c.Query("SELECT userID, comment FROM comment WHERE photoID = ?", pic)
 	if err != nil {
 		return nil, err
 	}

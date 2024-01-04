@@ -10,9 +10,6 @@ import (
 	"github.com/shireen03/WASAphoto/service/database"
 )
 
-// getContextReply is an example of HTTP endpoint that returns "Hello World!" as a plain text. The signature of this
-// handler accepts a reqcontext.RequestContext (see httpRouterHandler).
-
 func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	w.Header().Set("content-type", "application/json")
 
@@ -22,7 +19,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	userID := ps.ByName("userID")
+	userID := getAuth(r.Header.Get("Authorization"))
 
 	var comment database.Comment
 	if err != nil {
@@ -66,7 +63,7 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
-	userID := ps.ByName("userID")
+	userID := getAuth(r.Header.Get("Authorization"))
 
 	var comment database.Comment
 	err = json.NewDecoder(r.Body).Decode(&comment)
@@ -87,4 +84,24 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 	json.NewEncoder(w).Encode(struct {
 		Message string `json:"message"`
 	}{Message: "Comment removed successfully"})
+}
+
+func (rt *_router) getComments(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+	w.Header().Set("content-type", "application/json")
+
+	photoID, err := strconv.ParseUint(ps.ByName("photoID"), 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid photo ID", http.StatusBadRequest)
+		return
+	}
+
+	comments, err := rt.db.GetComments(photoID)
+	if err != nil {
+		http.Error(w, "cant get userID with username", http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(comments)
+
 }

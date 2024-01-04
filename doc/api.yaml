@@ -73,7 +73,7 @@ paths:
             username for login
           schema:
             type: string
-      operationId: setMyUsername
+      operationId: setMyUserName
       requestBody:
         description: New username
         content:
@@ -309,7 +309,7 @@ paths:
   
     post:
       tags: ["follow"]
-      summary: Follow or unfollow a user
+      summary: Follow a user
       description: |-
         This endpoint allows a user to follow or unfollow another user by their userID.
         If the user is already following the specified user, they will unfollow them, and if not, they will follow them.
@@ -352,7 +352,7 @@ paths:
           
           
     delete:
-        tags: ["user"]
+        tags: ["follow"]
         summary: Unfollow a user
         description: |-
           This endpoint allows a user to unfollow another user by their userID. 
@@ -474,7 +474,7 @@ paths:
                     type: string
                     example: "UserID not found"
     delete:
-        tags: ["user"]
+        tags: ["ban"]
         summary: Unban a user
         description: |-
           This endpoint allows a user to unban another user by their userID. 
@@ -624,7 +624,7 @@ paths:
                 $ref: "#/components/schemas/Like"
 
     delete:
-      tags: ["photo"]
+      tags: ["like"]
       summary: Unlike a photo
       description: |-
           This allows a user to unlike a photo.
@@ -653,7 +653,31 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Like"
-  
+  /photo/{photoID}/comment:
+    get:
+      tags: ["comment"]
+      summary: get list of comments
+      description: |-
+        This endpoint allows a user to view the comments of a photo. 
+      security:
+        - bearerAuth: []
+      operationId: getComments
+      parameters:
+        - in: path
+          name: photoID
+          required: true
+          description: photoID is a unique identifier to retrieve the post in which we would like to post the comment.
+          schema:
+            type: string
+            example: "pic1"
+                
+      responses:
+        '200':
+          description: User has commented on the photo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommentList"  
           
   /user/{userID}/photo/{photoID}/comment:
     post:
@@ -837,7 +861,6 @@ components:
               likeCount: 103
               date: 2021-01-01T02:08:13Z
               
-
     Photo:
       type: object
       description: A photo
@@ -1061,6 +1084,41 @@ components:
           minLength: 3
           maxLength: 16
           example: "shireen123" 
+
+    CommentList:
+      type: object
+      description: list of comments on the photo
+      properties:
+        uploadedPhotos:
+          type: array
+          description: list of comments on a photo 
+          minItems: 0
+          maxItems: 9999999
+          items:
+            type: object
+            properties:
+              photoID: 
+                description:  the photo identifier.
+                type: string
+                pattern: '^.*?$'
+                example: "123-123-123"
+                minLength: 3
+                maxLength: 50
+              comment:
+                description: the comment posted on the photo
+                type: string
+                pattern: '^.*?$'
+                example: nice pic 
+                minLength: 3
+                maxLength: 10000
+              username:
+                description: the username of the person who wrote the comment on the photo
+                type: string
+                pattern: '^.*?$'
+                example: shireen12 
+                minLength: 3
+                maxLength: 10000
+                
         
 
 

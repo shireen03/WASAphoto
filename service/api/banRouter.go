@@ -32,7 +32,7 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 	}
 
 	if !isbanned {
-		err = rt.db.SetBan(ban) //if already banned then we unban
+		err = rt.db.SetBan(ban) // If not banned then ban 
 		if err != nil {
 			http.Error(w, "mffff helpmeeee", http.StatusBadRequest)
 			return
@@ -65,9 +65,9 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 	if err != nil {
 		return
 	}
-
+// If already banned then we unban
 	if isbanned {
-		err = rt.db.SetUnBan(ban) //if already banned then we unban
+		err = rt.db.SetUnBan(ban) 
 		if err != nil {
 			http.Error(w, "mffff whyyy", http.StatusBadRequest)
 			return

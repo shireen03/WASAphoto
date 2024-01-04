@@ -1,10 +1,9 @@
 <script>
-import LoadingSpinner from "../components/LoadingSpinner.vue";
 export default {
 	data: function() {
 		return {
             errormsg: null,
-           
+            hasposts: false,
             userUsername: localStorage.getItem("username"),
             newUser: "",
             userID: localStorage.getItem("userID"),
@@ -30,14 +29,13 @@ export default {
                 photo: "",
                 isLiked:true,
                 comment: "",
-                comments:[{
-                        userID:0,
+                }
+            ],
+            comments:[{
                         username: "",
                         comment:"",
 
                     }],
-                }
-            ],
             }
 
         
@@ -58,7 +56,11 @@ export default {
        
     },
 
-    async popupComment() {
+    async getComments(photoID) {
+        let response=await this.$axios.get("/photo/" + photoID +"/comment");
+        console.log(response);
+        this.comments=response.data;
+
         var modal = document.getElementById("commentModal");
    
         modal.style.display = "block";
@@ -93,11 +95,14 @@ export default {
                     this.bans=response.data.bans;
 
                 console.log("bannn: " + this.bans);
+
+        
                 
                
 
                 if(this.photoCount>0){
                     this.getPhotos();
+                    this.hasposts=true;
                 };
                 
                 console.log("plsplspls work");
@@ -109,7 +114,7 @@ export default {
 		
     },
     async refresh() {
-		
+            this.hasposts=false;
 			this.AccountInfo();
             
 	},
@@ -202,7 +207,6 @@ this.getPhotos();
                 const uploadpic=this.$refs.pico.files[0];
                 // read.onload= async () =>{};
                 let response= await this.$axios.post("/photo/upload/" + this.userID, uploadpic);
-                this.AccountInfo();
                 this.refresh();
             }
      catch(e){
@@ -343,7 +347,7 @@ this.getPhotos();
  
     </head>
 
-    <div class="container">
+    <div class="container" v-if="this.hasposts==true">
         <div class="card-columns">
             <div v-for="photo in this.photos" style="width=300px">
                 <div class="card">
@@ -354,7 +358,7 @@ this.getPhotos();
 
                     <button class="fa fa-heart-o" v-if="photo.isLiked==true" @click="this.unLikePhoto(photo.photoID)"> {{ photo.like_count }}</button>
                     <button class="fa fa-heart-o"  v-if="photo.isLiked==false" @click="this.LikePhoto(photo.photoID)"> {{ photo.like_count }}</button>
-                    <button  @click="popupComment"> comments</button>
+                    <button  @click="getComments(photo.photoID)"> comments</button>
 
 
 
@@ -363,7 +367,7 @@ this.getPhotos();
                     <!-- Modal content -->
                     <div class="modal-content">
                     <span @click="closeModal" class="close">&times;</span>
-                    <div v-for="comment in photo.comment_list" :key="photo.photoID">
+                    <div v-for="comment in this.comments">
                     <p> <b>{{ comment.username }} :</b> {{ comment.comment }} </p>
                     
 

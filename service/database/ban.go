@@ -44,7 +44,10 @@ func (db *appdbimpl) GetBans(userID string) ([]string, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var banUserID string
-		rows.Scan(&banUserID)
+		err = rows.Scan(&banUserID)
+		if err != nil {
+			return nil, err
+		}
 		username, err := db.GetUsernameWithUserID(banUserID)
 		if err != nil {
 			return nil, err

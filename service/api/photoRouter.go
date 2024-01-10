@@ -12,11 +12,10 @@ import (
 	"github.com/shireen03/WASAphoto/service/database"
 )
 
-
 func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	var pic database.Photo
 
-	userID := ps.ByName("userID")
+	userID := getAuth(r.Header.Get("Authorization"))
 
 	photo, err := io.ReadAll(r.Body) //reads image file from requestbody
 	if err != nil {
@@ -27,7 +26,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	pic.UserID = userID
 	username, err := rt.db.GetUsernameWithUserID(pic.UserID)
 	if err != nil {
-		http.Error(w, "cant get userID with username", http.StatusBadRequest)
+		http.Error(w, "cant get username with userID", http.StatusBadRequest)
 		return
 	}
 	pic.Username = username
@@ -39,12 +38,16 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	err = rt.db.SetPic(pic)
 	if err != nil {
-		http.Error(w, "Error saving comment", http.StatusInternalServerError)
+		http.Error(w, "Error inserting picture", http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(pic)
+	err = json.NewEncoder(w).Encode(pic)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
 func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	var pic database.Photo
@@ -55,11 +58,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	userID := ps.ByName("userID")
-	if err != nil {
-		http.Error(w, "Invalid user ID", http.StatusBadRequest)
-		return
-	}
+	userID := getAuth(r.Header.Get("Authorization"))
 
 	pic.UserID = userID
 	pic.PhotoID = photoID
@@ -74,7 +73,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 }
 func (rt *_router) getPhotos(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
-	userID := ps.ByName("userID")
+	userID := getAuth(r.Header.Get("Authorization"))
 	photoUserID := ps.ByName("photoUserID")
 	var photo database.Photo
 	photo.UserID = userID
@@ -85,7 +84,12 @@ func (rt *_router) getPhotos(w http.ResponseWriter, r *http.Request, ps httprout
 		http.Error(w, "cant get photo list", http.StatusBadRequest)
 		return
 	}
+	w.Header().Set("content-type", "application/json")
 
 	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(pics)
+	err = json.NewEncoder(w).Encode(pics)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }

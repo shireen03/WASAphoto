@@ -89,20 +89,23 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 
 	bans, err := rt.db.GetBans(profile.UserID)
 	if err != nil {
-		http.Error(w, "cant get ban count", http.StatusBadRequest)
+		http.Error(w, "cant get list of bans", http.StatusBadRequest)
 		return
 	}
 	profile.Bans = bans
 
 	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(profile)
+	err = json.NewEncoder(w).Encode(profile)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
 
 func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	w.Header().Set("content-type", "application/json")
-	var user database.User
+	userID := getAuth(r.Header.Get("Authorization"))
 
-	userID := ps.ByName("userID")
+	var user database.User
 
 	user.UserID = userID
 
@@ -113,16 +116,19 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		http.Error(w, "Invalid username update", http.StatusBadRequest)
 		return
 	}
-
+	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(newUser)
+	err = json.NewEncoder(w).Encode(newUser)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
 
 func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	w.Header().Set("content-type", "application/json")
+	userID := getAuth(r.Header.Get("Authorization"))
 	var user database.User
 	var stream database.Streamer
-	userID := ps.ByName("userID")
 
 	stream.UserID = userID
 	user.UserID = userID
@@ -134,7 +140,32 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	stream.StreamedPhotos = streamPics
+	w.Header().Set("content-type", "application/json")
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(streamPics)
+	err = json.NewEncoder(w).Encode(streamPics)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+func (rt *_router) checkUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+
+	w.Header().Set("content-type", "application/json")
+
+	username := ps.ByName("username")
+
+	isUser, err := rt.db.CheckUserExist(username)
+
+	if err != nil {
+		http.Error(w, "error checking user existance", http.StatusConflict)
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+	err = json.NewEncoder(w).Encode(isUser)
+	if err != nil {
+		http.Error(w, "couldnt encode isUser result", http.StatusConflict)
+		return
+	}
+
 }

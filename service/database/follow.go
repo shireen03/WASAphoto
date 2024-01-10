@@ -57,7 +57,11 @@ func (db *appdbimpl) GetFollowers(userID string) ([]string, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var followerUserID string
-		rows.Scan(&followerUserID)
+		err = rows.Scan(&followerUserID)
+		if err != nil {
+			return nil, err
+		}
+
 		username, err := db.GetUsernameWithUserID(followerUserID)
 		if err != nil {
 			return nil, err
@@ -77,7 +81,10 @@ func (db *appdbimpl) GetFollowings(userID string) ([]string, error) {
 	defer rows.Close()
 	for rows.Next() {
 		var followingUserID string
-		rows.Scan(&followingUserID)
+		err = rows.Scan(&followingUserID)
+		if err != nil {
+			return nil, err
+		}
 		username, err := db.GetUsernameWithUserID(followingUserID)
 		if err != nil {
 			return nil, err

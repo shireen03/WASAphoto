@@ -6,10 +6,10 @@ func (db *appdbimpl) SetPic(pic Photo) error {
 	if err != nil {
 		return err // Return if error
 	}
-	return nil // void for no error
+	return nil // Void for no error
 }
 
-// remove pic
+// Remove pic
 func (db *appdbimpl) RemovePic(picID Photo) error {
 	// Delete from the photo table
 	_, err := db.c.Exec("DELETE FROM photos WHERE photoID=?", picID.PhotoID)
@@ -46,14 +46,16 @@ func (db *appdbimpl) GetPhotoCount(userID string) (int, error) {
 
 func (db *appdbimpl) GetPhotos(pixel Photo) ([]Photo, error) {
 	var photo []Photo
-	rows, err := db.c.Query("SELECT photoID, userID, date, photo FROM photos WHERE userID = ?", pixel.PhotoUserID)
+	rows, err := db.c.Query("SELECT photoID, userID, date, photo FROM photos WHERE userID = ? ORDER BY date DESC", pixel.PhotoUserID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		rows.Scan(&pixel.PhotoID, &pixel.PhotoUserID, &pixel.Date, &pixel.Photo)
-
+		err = rows.Scan(&pixel.PhotoID, &pixel.PhotoUserID, &pixel.Date, &pixel.Photo)
+		if err != nil {
+			return nil, err
+		}
 		likeCount, err := db.GetLikeCount(pixel)
 		if err != nil {
 			return nil, err

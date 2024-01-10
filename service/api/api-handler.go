@@ -26,16 +26,15 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.GET("/user/:userID/photo/:photoUserID", rt.wrap(rt.getPhotos))
 
 	rt.router.DELETE("/user/:userID/photo/:photoID/remove", rt.wrap(rt.deletePhoto))
-
+	rt.router.GET("/username/:username/checkUser", rt.wrap(rt.checkUser))
 	rt.router.POST("/user/:userID/photo/:photoID/like", rt.wrap(rt.likePhoto))
 	rt.router.DELETE("/user/:userID/photo/:photoID/like", rt.wrap(rt.unlikePhoto))
 
 	rt.router.POST("/user/:userID/photo/:photoID/comment", rt.wrap(rt.commentPhoto))
 	rt.router.GET("/photo/:photoID/comment", rt.wrap(rt.getComments))
 
-	// rt.router.DELETE("/user/:userID/photo/:photoID/comment", rt.wrap(rt.uncommentPhoto))
+	rt.router.DELETE("/uncomment/:commentID", rt.wrap(rt.uncommentPhoto))
 
-	// rt.router.POST("/user/:userID/ban/:banUserID", rt.wrap(rt.banUser))
 	rt.router.POST("/username/:username/ban/:banUsername", rt.wrap(rt.banUser))
 	rt.router.DELETE("/username/:username/ban/:banUsername", rt.wrap(rt.unbanUser))
 	rt.router.GET("/username/:username/ban/:banUsername", rt.wrap(rt.isBan))

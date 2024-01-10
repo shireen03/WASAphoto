@@ -64,7 +64,7 @@ type Comment struct {
 }
 
 type Like struct {
-	LikeID  uint64 `json:"likeID"`
+	LikeID  int64  `json:"likeID"`
 	UserID  string `json:"userID"`
 	PhotoID uint64 `json:"photoID"`
 }
@@ -134,7 +134,7 @@ type AppDatabase interface {
 	GetPhotoCount(userID string) (int, error)
 	GetPhotos(Photo) ([]Photo, error)
 
-	SetLike(Like) (int64, error)
+	SetLike(Like) (Like, error)
 	RemoveLike(Like) error
 	GetLikeCount(pic Photo) (int, error)
 	IsLiked(like Like) (bool, error)

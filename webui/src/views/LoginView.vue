@@ -28,9 +28,6 @@ export default {
        
         this.$axios.defaults.headers.common['Authorization']=`Bearer ${localStorage.getItem("userID")}`;
 
-        console.log("uhh");
-        console.log(localStorage.getItem("userID"));
-
 
 
 
@@ -50,13 +47,11 @@ export default {
 </script>
 
 <template>
+    
+	  <h1 class="h1">Login</h1> <br><br>
     <div class="center">
-	  <h1 class="h1">Login</h1>
-    <div class="gro">
-  <input type="text" id="username" v-model="this.username" placeholder="Enter new username" ><br>
+  <input type="text" id="username" style="height: 40px" v-model="this.username" placeholder="Enter new username" ><br>
   <button class="btn btn-outline-dark" id="submit" @click="dologin" > submit  </button>
-  </div>
-
 </div>
   </template>
 
@@ -64,10 +59,8 @@ export default {
 
 .center {
   display: flex;
-  flex-direction:column;
   align-items: center;
   justify-content: center;
-  min-height: 50vh;
 
 }
 .h1 {
@@ -79,13 +72,6 @@ export default {
 
 }
 
-
-.gro{
-    display:flex;
-    flex-direction: row;
-    align-items:flex-end;
-    justify-content:start;
-}
 
 
 

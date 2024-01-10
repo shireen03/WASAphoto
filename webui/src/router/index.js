@@ -5,27 +5,17 @@ import ProfileView from '../views/ProfileView.vue'
 
 import AccountViewer from '../views/AccountViewer.vue'
 import SearchView from '../views/SearchView.vue'
-import Error from '../views/Error.vue'
-
-
-
 
 
 const router = createRouter({
 	history: createWebHashHistory(import.meta.env.BASE_URL),
 	routes: [
 		{path: '/', component: login},
-		{path: '/session', component: SearchView},
+		{path: '/session', component: HomeView},
 		{path: '/search', component: SearchView},
 		{path: '/home', component: HomeView},
-		{path: '/error', component: Error},
-
-
-
 		{path: '/user/:username/account', component: AccountViewer},
 		{path: '/profile', component: ProfileView},
-	//	{path: '/users/:Username/', component: AccountView},
-
 	]
 })
 

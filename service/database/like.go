@@ -1,16 +1,17 @@
 package database
 
-func (db *appdbimpl) SetLike(like Like) (int64, error) {
+func (db *appdbimpl) SetLike(like Like) (Like, error) {
 	liker, err := db.c.Exec("INSERT INTO like (userID, photoID) VALUES (?, ?)", like.UserID, like.PhotoID)
 	if err != nil {
-		return 0, err
+		return Like{}, err
 	}
 
 	likeID, err := liker.LastInsertId()
 	if err != nil {
-		return 0, err
+		return Like{}, err
 	}
-	return likeID, nil
+	like.LikeID = likeID
+	return like, nil
 }
 
 func (db *appdbimpl) RemoveLike(like Like) error {

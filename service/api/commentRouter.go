@@ -11,15 +11,13 @@ import (
 )
 
 func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	w.Header().Set("content-type", "application/json")
+	userID := getAuth(r.Header.Get("Authorization"))
 
 	photoID, err := strconv.ParseUint(ps.ByName("photoID"), 10, 64)
 	if err != nil {
 		http.Error(w, "Invalid photo ID", http.StatusBadRequest)
 		return
 	}
-
-	userID := getAuth(r.Header.Get("Authorization"))
 
 	var comment database.Comment
 	if err != nil {
@@ -48,42 +46,40 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		http.Error(w, "Error saving comment", http.StatusInternalServerError)
 		return
 	}
+	w.Header().Set("content-type", "application/json")
 
 	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(commenter)
+	err = json.NewEncoder(w).Encode(commenter)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 }
 
 func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	w.Header().Set("content-type", "application/json")
-
-	photoID, err := strconv.ParseUint(ps.ByName("photoID"), 10, 64)
-	if err != nil {
-		http.Error(w, "Invalid photo ID", http.StatusBadRequest)
-		return
-	}
-
 	userID := getAuth(r.Header.Get("Authorization"))
 
-	var comment database.Comment
-	err = json.NewDecoder(r.Body).Decode(&comment)
+	commentID, err := strconv.ParseUint(ps.ByName("commentID"), 10, 64)
 	if err != nil {
-		http.Error(w, "Error decoding request body", http.StatusBadRequest)
+		http.Error(w, "Invalid comment ID", http.StatusBadRequest)
 		return
 	}
 
+	var comment database.Comment
+
 	comment.UserID = userID
-	comment.PhotoID = photoID
+	comment.CommentID = commentID
 
 	err = rt.db.RemoveComment(comment)
 	if err != nil {
-		http.Error(w, "Error saving comment", http.StatusInternalServerError)
+		http.Error(w, "Error deleting commentt", http.StatusInternalServerError)
 		return
 	}
+	w.Header().Set("content-type", "application/json")
+
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(struct {
-		Message string `json:"message"`
-	}{Message: "Comment removed successfully"})
+
 }
 
 func (rt *_router) getComments(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
@@ -100,8 +96,13 @@ func (rt *_router) getComments(w http.ResponseWriter, r *http.Request, ps httpro
 		http.Error(w, "cant get userID with username", http.StatusBadRequest)
 		return
 	}
+	w.Header().Set("content-type", "application/json")
 
 	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(comments)
+	err = json.NewEncoder(w).Encode(comments)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 }

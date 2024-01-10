@@ -10,11 +10,8 @@ import (
 	"github.com/shireen03/WASAphoto/service/database"
 )
 
-
-
 func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	w.Header().Set("content-type", "text/plain")
-	userID := ps.ByName("userID") 
+	userID := getAuth(r.Header.Get("Authorization"))
 
 	photoID, err := strconv.ParseUint(ps.ByName("photoID"), 10, 64) // Converting string to integer (uint64)
 	if err != nil {
@@ -24,29 +21,23 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 	like.UserID = userID
 	like.PhotoID = photoID
 
-	isLiked, err := rt.db.IsLiked(like)
+	liker, err := rt.db.SetLike(like) // If its not liked then we set the like in database
 	if err != nil {
-		http.Error(w, "couldnt check if liked", http.StatusBadRequest)
+		http.Error(w, "couldnt check if its liked", http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+	err = json.NewEncoder(w).Encode(liker.LikeID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	if !isLiked {
-		liker, err := rt.db.SetLike(like) // If its not liked then we set the like in database
-		if err != nil {
-			http.Error(w, "couldnt check if its liked", http.StatusBadRequest)
-			return
-		}
-
-		w.WriteHeader(http.StatusCreated)
-		_ = json.NewEncoder(w).Encode(liker)
-
-	}
-
 }
+
 func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	w.Header().Set("content-type", "text/plain")
+	userID := getAuth(r.Header.Get("Authorization"))
 	var like database.Like
-	userID := ps.ByName("userID") 
 
 	photoID, err := strconv.ParseUint(ps.ByName("photoID"), 10, 64)
 	if err != nil {
@@ -68,6 +59,7 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 			http.Error(w, "remove like failed", http.StatusBadRequest)
 			return
 		}
+		w.Header().Set("content-type", "application/json")
 		w.WriteHeader(http.StatusCreated)
 
 	}

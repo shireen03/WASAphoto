@@ -26,7 +26,7 @@ paths:
         content:
           application/json:
             schema:
-              description: jlkjljòljò
+              description: username of the user
               type: object
               properties:
                 username:
@@ -48,6 +48,38 @@ paths:
                     type: string
                     example: "abcdef012345"
    
+
+  /username/{username}/checkUser:
+    get:
+      tags: ["user"]
+      summary: check if user exists
+      description: |-
+        This endpoint checks if the user exists in the database
+      security:
+        - bearerAuth: []     
+      operationId: checkUser
+      parameters:
+        - in: path
+          name: username
+          required: true
+          description: |-
+           username that the current user is searching
+          schema:
+            type: string
+            example: shireen123
+        
+      responses:
+        '200':
+          description: returns true if the user exists, otherwise false
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isUser:
+                    type: boolean
+                    example: true
+
 
   /user/{userID}/setusername/{username}:
     put:
@@ -694,8 +726,8 @@ paths:
           required: true
           description: photoID is a unique identifier to retrieve the post in which we would like to post the comment.
           schema:
-            type: string
-            example: "pic1"
+            type: integer
+            example: 12
         - in: path
           name: userID
           required: true
@@ -722,7 +754,7 @@ paths:
                 $ref: "#/components/schemas/Comment"
                   
         
-          
+  /uncomment/{commentID}:       
     delete:
       tags: ["comment"]
       summary: Uncomment on a photo
@@ -733,26 +765,20 @@ paths:
       operationId: uncommentPhoto
       parameters:
         - in: path
-          name: photoID
+          name: commentID
           required: true
-          description: photoID is required to retrieve the post in which the             user would like to uncomment.
+          description: commentID is the identifier for a comment  
           schema:
-            type: string
-            example: "comment1"
-        - in: path
-          name: userID
-          required: true
-          description: userID of the person who uncomments on photo
-          schema:
-            type: string
-           
+            type: integer
+            example: 1        
       responses:
         '200':
           description: comment deleted
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Comment"
+                type: object 
+                
           
   /photo/{photoID}/remove:
     delete:

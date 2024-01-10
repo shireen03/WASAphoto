@@ -342,7 +342,6 @@ async uploadComment(photoID,yuhcomment){
                 <img class="card-img-top" :src=photo.photo  alt="unavailable"  style="width=300px; height: 200px">
                 <hr>
                 <div class="card-body">
-                    <h4>{{ photo.foll }}</h4>
                 <button class="fa fa-heart-o"  @click="this.unLikePhoto(photo.photoID)" v-if="photo.isLiked==true"> {{ photo.like_count }}</button>
                 <button class="fa fa-heart-o" @click="this.LikePhoto(photo.photoID)" v-if="photo.isLiked==false" > {{ photo.like_count }}</button>
                 <button  @click="getComments(photo.photoID)"> comments</button>

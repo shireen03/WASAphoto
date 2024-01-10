@@ -288,10 +288,12 @@ export default {
             <div class="modal-header">
                 <h5 class="modal-title">Followers</h5>
             </div>
-            <div class="modal-body" v-for="follow in this.followers" v-bind:key="follow" >
+            <div class="modal-body" >
+                <div v-for="follow in this.followers" v-bind:key="follow">
                 <RouterLink :to="'user/' + follow + '/account'" class="nav-link">
                     <p> {{ follow }}  </p>
                 </RouterLink>
+            </div>
             </div>
         </div>
     </div>
@@ -307,12 +309,13 @@ export default {
                 <h5 class="modal-title">Followings</h5>
             </div>
             
-            <div class="modal-body" v-for="follow in this.following" v-bind:key="follow" >
+            <div class="modal-body">
+                <div v-for="follow in this.following" v-bind:key="follow">
                 <RouterLink :to="'user/' + follow + '/account'" class="nav-link">
                     <p> {{ follow }}  </p>
                 </RouterLink>
             </div>
-        </div>
+        </div></div>
     </div>
 </div>
 
@@ -326,11 +329,12 @@ export default {
             <div class="modal-header">
                 <h5 class="modal-title"> Bans </h5>
             </div>
-            <div class="modal-body" v-for="ban in this.bans" v-bind:key="ban.banID" >
+            <div class="modal-body" >
+                <div  v-for="ban in this.bans" v-bind:key="ban.banID">
                 <RouterLink :to="'user/' + ban + '/account'" class="nav-link">
                     <p> {{ ban }}  </p>
                 </RouterLink>
-            </div>
+            </div></div>
         </div>
     </div>
 </div>

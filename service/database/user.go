@@ -102,7 +102,7 @@ func (db *appdbimpl) SetUsername(username string, user User) (string, error) {
 }
 
 func (db *appdbimpl) GetStream(user User) ([]Stream, error) {
-	//select photos from followed users with likes and comments count, in reverse chronological order
+	// Select photos from followed users with likes and comments count, in reverse chronological order
 	rows, err := db.c.Query("SELECT p.photoID, p.photo, p.userID, p.date FROM photos p INNER JOIN follow f ON p.userID = f.toFollowID WHERE f.userID = ? ORDER BY p.date DESC", user.UserID)
 
 	if err != nil {
@@ -156,6 +156,10 @@ func (db *appdbimpl) GetStream(user User) ([]Stream, error) {
 		s.Comments = comments
 
 		streams = append(streams, s)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
 	}
 
 	return streams, nil

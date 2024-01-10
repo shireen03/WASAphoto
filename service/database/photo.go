@@ -86,6 +86,10 @@ func (db *appdbimpl) GetPhotos(pixel Photo) ([]Photo, error) {
 		photo = append(photo, pixel)
 
 	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
 
 	return photo, nil
 

@@ -26,7 +26,7 @@ export default {
 
         this.userID = response.data;
        
-        this.$axios.defaults.headers.common['Authorization']=`Bearer ${localStorage.getItem("userID")}`;
+        // this.$axios.defaults.headers.common['Authorization']=`Bearer ${localStorage.getItem("userID")}`;
 
 
 

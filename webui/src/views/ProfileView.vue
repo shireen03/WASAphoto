@@ -218,7 +218,7 @@ export default {
                     Authorization: "Bearer " + localStorage.getItem("userID")
                 }
             });
-        this.getPhotos();
+        this.refresh();
        
     },
        
@@ -378,7 +378,7 @@ export default {
             </div>
             
             <div class="modal-body">
-                <div v-for="comment in this.comments" v-bind:key="comment.commentID">
+                <div v-for="comment in this.comments" v-bind:key="comment.commentID" v-bind="comment.photoID">
                 <p> <b>{{ comment.username }}  </b> {{ comment.comment }} </p>
                 <button v-if="comment.username==this.userUsername" type="button" class="btn btn-danger" style="float: right;" @click="deleteComment(comment.comment_id, photo.photoID)">Delete</button>
                 <br>

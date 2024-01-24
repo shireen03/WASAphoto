@@ -206,6 +206,7 @@ export default {
             });
             this.refresh();
             console.log("please please please grade my work");
+            console.log("idk");
             }
      catch(e){
             this.errormsg=e.toString();

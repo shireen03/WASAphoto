@@ -94,7 +94,7 @@ func (db *appdbimpl) CheckUserExist(username string) (bool, error) {
 	return userExists, nil
 }
 func (db *appdbimpl) SetUsername(username string, user User) (string, error) {
-	_, err := db.c.Exec("UPDATE user SET username=? WHERE  userID=?", username, user.UserID)
+	_, err := db.c.Exec("UPDATE user SET username=? WHERE userID=?", username, user.UserID)
 	if err != nil {
 		return "", err
 	}

@@ -147,9 +147,6 @@ export default {
            
         this.refresh();
         this.getComments(photoID);
-
-        
-   
     
     },
           
@@ -179,7 +176,7 @@ async uploadComment(photoID,yuhcomment){
 },
 
 
-    async getFollow(){
+async getFollow(){
         try{     
             this.currentUser=localStorage.getItem("username");
             if(this.isFollow){
@@ -436,7 +433,6 @@ async uploadComment(photoID,yuhcomment){
   color: grey;
   cursor: pointer;
   background-color: black;
-
   height: 27px;
 }
 

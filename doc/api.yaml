@@ -616,7 +616,7 @@ paths:
   /user/{userID}/stream:
     get:
       tags: ["user"]
-      summary: Get User's Stream
+      summary: Get user's stream
       description: |-
         This endpoint allows a user to retrieve their stream. A user's stream is a set of photos from other users that they follow. The stream of photos are arranged in reverse chronological order, which includes information about the date and time of each photo uploaded, the number of likes, and the comments on each post.
       security:

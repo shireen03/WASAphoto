@@ -4,11 +4,12 @@ export default {
 		return {
 			errormsg: null,
       searchUsername: "",
+      banStatus:false,
+      userStatus: false,
       userID: "",
       search: "",
       username:"",
-      isban:true,
-      isUser: false,
+      
 		}
 	},
 	methods: {
@@ -23,8 +24,8 @@ export default {
                     Authorization: "Bearer " + localStorage.getItem("userID")
                 }
             });
-            this.isban=response.data
-            console.log(this.isban);
+            this.banStatus=response.data
+            console.log(this.banStatus);
 
 
             let response2=await this.$axios.get("/username/"+ this.search + "/checkUser", {
@@ -32,21 +33,18 @@ export default {
                     Authorization: "Bearer " + localStorage.getItem("userID")
                 }
             });
-            this.isUser=response2.data
+            this.userStatus=response2.data
 
             if(this.search==""){
                 this.errormsg = "search cannot be empty"
-            }else if(this.search==this.username){
-                this.errormsg="Cant search yourself"
-
-            }else if(this.isban==true){
-              this.errormsg="Cant search this user."
-            }else if(this.isUser==false){
-              this.errormsg="username doesnt exist"
             }
-            else{
-              console.log(this.search)
-                
+            else if(this.userStatus==false){
+              this.errormsg="user doesnt exist"
+            }else if(this.search==this.username){
+                this.errormsg="Why you searching yourself"
+            }else if(this.banStatus==true){
+              this.errormsg="your banned by this user."
+            }else{                
               this.$router.push({path: "user/" + this.search + "/account"});
             }
         } 
@@ -62,16 +60,12 @@ export default {
 </script>
 
 <template>
-  		<br><br>
-      <br><br>
+  		<br>
+			<h4>Search User</h4>
+		<br><br><br>
+    
 
-		<div class="ok">
-			<h2>Search User</h2>
-		<br><br>
-    </div>
-    <br><br>
-
-      <div class="gro">
+      <div class="group">
           <input class="text" type="text" style="height: 40px; width: 400px" v-model="search" placeholder="Search User">
           <button class="btn btn-outline-secondary" id="submit" style="height: 40px;" @click="searchUser" > search  </button>
       </div>
@@ -82,16 +76,7 @@ export default {
 </template>
 <style>
 
-
-.ok {
-  display: flex;
-  flex-direction:row;
-  align-items: center;
-  justify-content: center;
-
-
-}
-.gro{
+.group{
   display: flex;
   align-items: center;
   justify-content: center;

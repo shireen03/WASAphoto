@@ -267,7 +267,7 @@ export default {
     </div>
    
     <div class="umidk">
-    <div class="btn-group">
+    <div class="btn-group"> 
  
             <button class="btn" @click="getFollower"> followers: {{this.followerCount}} </button>
     

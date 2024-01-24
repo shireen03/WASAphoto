@@ -18,7 +18,7 @@ export default {
 
                 }
             ],
-			    comments:[{
+		comments:[{
                     commentID:0,
                     commentUser: "",
                     comment:"",
@@ -40,31 +40,30 @@ export default {
 				this.userUsername= localStorage.getItem("username");
 
 				let response = await this.$axios.get("/user/" + this.userID + "/stream", {
-                headers: {
-                    Authorization: "Bearer " + localStorage.getItem("userID")
-                }
-            });
+		                headers: {
+		                    Authorization: "Bearer " + localStorage.getItem("userID")
+		                }
+		            	});
 				this.photos=response.data;
 
 
-                for (let i=0;i<this.photos.length;i++){   
-                    this.photos[i].photo= 'data:image/png;base64,'+ this.photos[i].photo;    
-                }
-
-			} catch (e) {
-			}
-			this.loading = false;
+		                for (let i=0;i<this.photos.length;i++){   
+		                    this.photos[i].photo= 'data:image/png;base64,'+ this.photos[i].photo;    
+		                }
+		
+				} catch (e) {
+				}
 		},
-	async getComments(photoID) {
-        let response=await this.$axios.get("/photo/" + photoID +"/comment", {
-                headers: {
-                    Authorization: "Bearer " + localStorage.getItem("userID")
-                }
-            });
-        this.comments=response.data;
-        var modal = document.getElementById("commentModal");
-        modal.style.display = "block";
-    },
+		async getComments(photoID) {
+		        let response=await this.$axios.get("/photo/" + photoID +"/comment", {
+		                headers: {
+		                    Authorization: "Bearer " + localStorage.getItem("userID")
+		                }
+		            });
+		        this.comments=response.data;
+		        var modal = document.getElementById("commentModal");
+		        modal.style.display = "block";
+		    },
     async closeModal() {
         var modal = document.getElementById("commentModal");
 
@@ -101,6 +100,7 @@ export default {
                     Authorization: "Bearer " + localStorage.getItem("userID")
                 }
             });
+	console.log("please work");
 
 	this.getStream();
 	},

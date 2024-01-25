@@ -6,7 +6,7 @@ info:
     
     This API supports Cross-Origin Resource Sharing (CORS), allowing it to interact with other domains in this API for data reasons to increase the website's usability.
     
-    This API was created in 2023/2024.
+    This API was created in 2023/2024 by Shireen Aynetchi.
     
   version: "10"
   

@@ -4,7 +4,7 @@ FROM golang:1.19.1 AS builder
 WORKDIR /src/
 COPY . .
 
-### Build the executables
+### Build the executabless
 RUN go build -o /app/webapi ./cmd/webapi
 
 ### Final container

@@ -91,13 +91,11 @@ type Profile struct {
 	Bans           []string `json:"bans"`
 }
 
-// this one is to get the array of pictures from users you follow
 type Streamer struct {
 	UserID         string   `json:"userID"`
 	StreamedPhotos []Stream `json:"streamedphotos"`
 }
 
-// this one describes the details of the stream which we will add into the array of pictures in Streamer
 type Stream struct {
 	UserID           string    `json:"userID"`
 	FollowedUserID   string    `json:"followed_userID"`
@@ -117,7 +115,6 @@ type AppDatabase interface {
 	LogtheUser(User) (string, error)
 
 	SetUsername(string, User) (string, error)
-	//GetUserId(uint64) (User, error)
 	GetStream(User) ([]Stream, error)
 	CheckUserExist(string) (bool, error)
 	GetUserIDWithUsername(username string) (string, error)
@@ -138,10 +135,8 @@ type AppDatabase interface {
 	RemoveLike(Like) error
 	GetLikeCount(pic Photo) (int, error)
 	IsLiked(like Like) (bool, error)
-
 	SetComment(Comment) (Comment, error)
 	RemoveComment(Comment) error
-	//GetCommentList(uint64)([]Comment,error)
 	GetCommentCount(Photo) (int, error)
 	RemoveBanComment(ban Ban) error
 	GetComments(pic uint64) ([]Comment, error)

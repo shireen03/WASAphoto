@@ -6,34 +6,6 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-func (db *appdbimpl) LogUser(usr User) (User, error) {
-	checkUser, err := db.CheckUserExist(usr.Username)
-
-	if err != nil {
-		return User{}, err
-	}
-	if checkUser {
-		var existUser User
-		user, err := db.GetUserIDWithUsername(usr.Username)
-		if err != nil {
-			return User{}, err
-		}
-		existUser.UserID = user
-		existUser.Username = usr.Username
-
-		return existUser, nil
-
-	} else {
-		usr.UserID = usr.Username
-		_, err := db.c.Exec("INSERT INTO user (username, userID) VALUES (?,?)", usr.Username, usr.UserID)
-		if err != nil {
-			return User{}, err
-		}
-
-		return usr, nil
-	}
-
-}
 func (db *appdbimpl) LogtheUser(usr User) (string, error) {
 
 	checkUser, err := db.CheckUserExist(usr.Username)
@@ -102,7 +74,6 @@ func (db *appdbimpl) SetUsername(username string, user User) (string, error) {
 }
 
 func (db *appdbimpl) GetStream(user User) ([]Stream, error) {
-	// Select photos from followed users with likes and comments count, in reverse chronological order
 	rows, err := db.c.Query("SELECT p.photoID, p.photo, p.userID, p.date FROM photos p INNER JOIN follow f ON p.userID = f.toFollowID WHERE f.userID = ? ORDER BY p.date DESC", user.UserID)
 
 	if err != nil {

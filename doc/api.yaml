@@ -38,7 +38,7 @@ paths:
         required: true
       responses:
         '201':
-          description: User log-in action successful
+          description: User log-in successful
           content:
             application/json:
               schema:

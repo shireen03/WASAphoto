@@ -1,35 +1,31 @@
 package database
 
-// set pic
 func (db *appdbimpl) SetPic(pic Photo) error {
 	_, err := db.c.Exec("INSERT INTO photos (userID, username, date, photo) VALUES (?, ?, ?, ?)", pic.UserID, pic.Username, pic.Date, pic.Photo)
 	if err != nil {
-		return err // Return if error
+		return err 
 	}
-	return nil // Void for no error
+	return nil 
 }
 
 // Remove pic
 func (db *appdbimpl) RemovePic(picID Photo) error {
-	// Delete from the photo table
 	_, err := db.c.Exec("DELETE FROM photos WHERE photoID=?", picID.PhotoID)
 	if err != nil {
-		return err // Return error
+		return err 
 	}
 
-	// Delete from the like table
 	_, err = db.c.Exec("DELETE FROM like WHERE photoID=?", picID.PhotoID)
 	if err != nil {
 		return err
 	}
 
-	// Delete from the comment table
 	_, err = db.c.Exec("DELETE FROM comment WHERE photoID=?", picID.PhotoID)
 	if err != nil {
 		return err
 	}
 
-	return nil // void if no errors
+	return nil 
 
 }
 

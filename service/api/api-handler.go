@@ -24,6 +24,10 @@ func (rt *_router) Handler() http.Handler {
 
 	rt.router.POST("/photo/upload/:userID", rt.wrap(rt.uploadPhoto))
 	rt.router.GET("/user/:userID/photo/:photoUserID", rt.wrap(rt.getPhotos))
+	
+	rt.router.POST("/username/:username/ban/:banUsername", rt.wrap(rt.banUser))
+	rt.router.DELETE("/username/:username/ban/:banUsername", rt.wrap(rt.unbanUser))
+	rt.router.GET("/username/:username/ban/:banUsername", rt.wrap(rt.isBan))
 
 	rt.router.DELETE("/user/:userID/photo/:photoID/remove", rt.wrap(rt.deletePhoto))
 	rt.router.GET("/username/:username/checkUser", rt.wrap(rt.checkUser))
@@ -35,12 +39,8 @@ func (rt *_router) Handler() http.Handler {
 
 	rt.router.DELETE("/uncomment/:commentID", rt.wrap(rt.uncommentPhoto))
 
-	rt.router.POST("/username/:username/ban/:banUsername", rt.wrap(rt.banUser))
-	rt.router.DELETE("/username/:username/ban/:banUsername", rt.wrap(rt.unbanUser))
-	rt.router.GET("/username/:username/ban/:banUsername", rt.wrap(rt.isBan))
 
-	// Special routes
-	rt.router.GET("/liveness", rt.liveness)
+	
 
 	return rt.router
 }

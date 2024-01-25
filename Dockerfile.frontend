@@ -9,7 +9,7 @@ WORKDIR /app/webui
 RUN npm run build-prod
 
 
-### Make final container
+### Make the final container
 FROM nginx:stable
 
 ### Get the  app from the builder image

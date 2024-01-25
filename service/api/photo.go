@@ -17,7 +17,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	userID := getAuth(r.Header.Get("Authorization"))
 
-	photo, err := io.ReadAll(r.Body) //reads image file from requestbody
+	photo, err := io.ReadAll(r.Body) 
 	if err != nil {
 		http.Error(w, "Invalid photo file", http.StatusBadRequest)
 		return

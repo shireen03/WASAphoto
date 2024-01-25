@@ -25,8 +25,6 @@ export default {
                 }
             });
             this.banStatus=response.data
-            console.log(this.banStatus);
-
 
             let response2=await this.$axios.get("/username/"+ this.search + "/checkUser", {
                 headers: {
@@ -43,7 +41,7 @@ export default {
             }else if(this.search==this.username){
                 this.errormsg="Why you searching yourself"
             }else if(this.banStatus==true){
-              this.errormsg="your banned by this user."
+              this.errormsg="you're banned by this user."
             }else{                
               this.$router.push({path: "user/" + this.search + "/account"});
             }
@@ -62,9 +60,8 @@ export default {
 <template>
   		<br>
 			<h4>Search User</h4>
-		<br><br><br>
+		<br><br>
     
-
       <div class="group">
           <input class="text" type="text" style="height: 40px; width: 400px" v-model="search" placeholder="Search User">
           <button class="btn btn-outline-secondary" id="submit" style="height: 40px;" @click="searchUser" > search  </button>

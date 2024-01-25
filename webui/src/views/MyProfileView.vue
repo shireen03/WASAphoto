@@ -257,7 +257,7 @@ export default {
   
     
 
-    <h2 > <span>{{this.userUsername}}</span> Account   </h2>
+    <h2 > <span>{{this.userUsername}}</span> Profile   </h2>
 
   
     <div class="upload">
